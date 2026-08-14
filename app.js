@@ -1,7 +1,9 @@
 (() => {
 
+  "use strict";
+
   // =========================================================
-  // FINANÇAS PRO
+  // FINANCEIRO EDUARDO E VIVIANE
   // APP PRINCIPAL
   // =========================================================
 
@@ -9,26 +11,56 @@
 
   const GOAL = 1200;
 
-  // =========================================================
-  // DÍZIMO
-  // =========================================================
-
   const TITHE_RATE = 0.10;
+
 
   // =========================================================
   // UTILIDADES
   // =========================================================
 
-  const $ = id => document.getElementById(id);
+  const $ = id =>
+    document.getElementById(id);
 
-  const money = value =>
-    (Number(value) || 0).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    });
 
-  const today = () =>
-    new Date().toISOString().slice(0, 10);
+  function money(value) {
+
+    return (Number(value) || 0).toLocaleString(
+      "pt-BR",
+      {
+        style: "currency",
+        currency: "BRL"
+      }
+    );
+
+  }
+
+
+  function today() {
+
+    const d = new Date();
+
+    const year =
+      d.getFullYear();
+
+    const month =
+      String(d.getMonth() + 1)
+        .padStart(2, "0");
+
+    const day =
+      String(d.getDate())
+        .padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+
+  }
+
+
+  function currentMonth() {
+
+    return today().slice(0, 7);
+
+  }
+
 
   function escapeHTML(value) {
 
@@ -43,11 +75,14 @@
 
   }
 
+
   function formatDate(date) {
 
-    if (!date) return "";
+    if (!date)
+      return "";
 
-    const parts = String(date).split("-");
+    const parts =
+      String(date).split("-");
 
     if (parts.length !== 3)
       return date;
@@ -62,8 +97,24 @@
 
   }
 
+
+  function uid(prefix = "id") {
+
+    return (
+      prefix +
+      "_" +
+      Date.now() +
+      "_" +
+      Math.random()
+        .toString(36)
+        .slice(2, 8)
+    );
+
+  }
+
+
   // =========================================================
-  // CARREGAR DADOS
+  // CARREGAMENTO DOS DADOS
   // =========================================================
 
   let state = {};
@@ -74,51 +125,77 @@
       localStorage.getItem(KEY) || "{}"
     );
 
-  } catch (erro) {
+  } catch (error) {
 
-    console.error("Erro ao carregar dados:", erro);
+    console.error(
+      "Erro ao carregar dados:",
+      error
+    );
 
     state = {};
 
   }
 
-  // Mantém os dados existentes
-  state.entries = Array.isArray(state.entries)
-    ? state.entries
-    : [];
 
-  state.savings = Array.isArray(state.savings)
-    ? state.savings
-    : [];
+  state.entries =
+    Array.isArray(state.entries)
+      ? state.entries
+      : [];
 
-  state.goals = Array.isArray(state.goals)
-    ? state.goals
-    : [];
 
-  state.accounts = Array.isArray(state.accounts)
-    ? state.accounts
-    : [];
+  state.savings =
+    Array.isArray(state.savings)
+      ? state.savings
+      : [];
 
-  state.cards = Array.isArray(state.cards)
-    ? state.cards
-    : [];
 
-  state.debts = Array.isArray(state.debts)
-    ? state.debts
-    : [];
+  state.goals =
+    Array.isArray(state.goals)
+      ? state.goals
+      : [];
 
-  state.investments = Array.isArray(state.investments)
-    ? state.investments
-    : [];
 
-  state.budgets = Array.isArray(state.budgets)
-    ? state.budgets
-    : [];
+  state.accounts =
+    Array.isArray(state.accounts)
+      ? state.accounts
+      : [];
 
-  // Dízimo ativado por padrão
-  if (typeof state.titheEnabled !== "boolean") {
-    state.titheEnabled = true;
-  }
+
+  state.cards =
+    Array.isArray(state.cards)
+      ? state.cards
+      : [];
+
+
+  state.debts =
+    Array.isArray(state.debts)
+      ? state.debts
+      : [];
+
+
+  state.investments =
+    Array.isArray(state.investments)
+      ? state.investments
+      : [];
+
+
+  state.budgets =
+    Array.isArray(state.budgets)
+      ? state.budgets
+      : [];
+
+
+  state.bankConnections =
+    Array.isArray(state.bankConnections)
+      ? state.bankConnections
+      : [];
+
+
+  state.titheEnabled =
+    typeof state.titheEnabled === "boolean"
+      ? state.titheEnabled
+      : true;
+
 
   function save() {
 
@@ -129,6 +206,7 @@
 
   }
 
+
   // =========================================================
   // MÊS
   // =========================================================
@@ -137,42 +215,52 @@
 
     return (
       $("monthFilter")?.value ||
-      today().slice(0, 7)
+      currentMonth()
     );
 
   }
+
 
   function getMonthEntries() {
 
-    return state.entries.filter(item =>
-      String(item.date || "")
-        .slice(0, 7) === getMonth()
+    return state.entries.filter(
+      item =>
+        String(item.date || "")
+          .slice(0, 7) === getMonth()
     );
 
   }
 
+
   // =========================================================
-  // CÁLCULO DO DÍZIMO
+  // DÍZIMO
   // =========================================================
 
-  function getTithe(monthEntries = getMonthEntries()) {
+  function getTithe(entries) {
 
     if (!state.titheEnabled)
       return 0;
 
-    const entradas = monthEntries
-      .filter(item =>
-        item.type === "entrada"
-      )
-      .reduce(
-        (total, item) =>
-          total + Number(item.amount || 0),
-        0
-      );
+    const lista =
+      entries || getMonthEntries();
+
+    const entradas =
+      lista
+        .filter(
+          item =>
+            item.type === "entrada"
+        )
+        .reduce(
+          (total, item) =>
+            total +
+            Number(item.amount || 0),
+          0
+        );
 
     return entradas * TITHE_RATE;
 
   }
+
 
   // =========================================================
   // TOTAIS
@@ -180,58 +268,78 @@
 
   function getTotals() {
 
-    const entries = getMonthEntries();
+    const entries =
+      getMonthEntries();
 
-    const entradas = entries
-      .filter(item =>
-        item.type === "entrada"
-      )
-      .reduce(
-        (total, item) =>
-          total + Number(item.amount || 0),
-        0
-      );
 
-    const despesas = entries
-      .filter(item =>
-        item.type === "despesa"
-      )
-      .reduce(
-        (total, item) =>
-          total + Number(item.amount || 0),
-        0
-      );
+    const entradas =
+      entries
+        .filter(
+          item =>
+            item.type === "entrada"
+        )
+        .reduce(
+          (total, item) =>
+            total +
+            Number(item.amount || 0),
+          0
+        );
 
-    const dizimo = getTithe(entries);
 
-    const poupado = state.savings
-      .filter(item =>
-        String(item.date || "")
-          .slice(0, 7) === getMonth()
-      )
-      .reduce(
-        (total, item) =>
-          total + Number(item.amount || 0),
-        0
-      );
+    const despesas =
+      entries
+        .filter(
+          item =>
+            item.type === "despesa"
+        )
+        .reduce(
+          (total, item) =>
+            total +
+            Number(item.amount || 0),
+          0
+        );
 
-    // Saldo já descontando o dízimo
+
+    const dizimo =
+      getTithe(entries);
+
+
+    const poupado =
+      state.savings
+        .filter(
+          item =>
+            String(item.date || "")
+              .slice(0, 7) ===
+            getMonth()
+        )
+        .reduce(
+          (total, item) =>
+            total +
+            Number(item.amount || 0),
+          0
+        );
+
+
     const saldo =
       entradas -
       dizimo -
       despesas;
 
-    const totalComprometido =
-      despesas +
-      dizimo;
 
     const comprometido =
       entradas > 0
         ? Math.min(
             100,
-            (totalComprometido / entradas) * 100
+            (
+              (
+                despesas +
+                dizimo
+              ) /
+              entradas
+            ) * 100
           )
         : 0;
+
 
     return {
 
@@ -246,6 +354,7 @@
 
   }
 
+
   // =========================================================
   // NAVEGAÇÃO
   // =========================================================
@@ -254,35 +363,40 @@
 
     document
       .querySelectorAll(".page")
-      .forEach(pagina => {
+      .forEach(
+        pagina =>
+          pagina.classList.remove(
+            "active"
+          )
+      );
 
-        pagina.classList.remove("active");
-
-      });
 
     const pagina =
       document.getElementById(page);
 
-    if (pagina) {
 
-      pagina.classList.add("active");
+    if (!pagina)
+      return;
 
-    }
+
+    pagina.classList.add(
+      "active"
+    );
+
 
     document
       .querySelectorAll(
         "nav button[data-page]"
       )
-      .forEach(botao => {
+      .forEach(
+        botao =>
+          botao.classList.toggle(
+            "selected",
+            botao.dataset.page === page
+          )
+      );
 
-        botao.classList.toggle(
-          "selected",
-          botao.dataset.page === page
-        );
 
-      });
-
-    // Volta para o topo da página
     window.scrollTo({
       top: 0,
       behavior: "smooth"
@@ -290,11 +404,10 @@
 
   }
 
-  window.abrirPagina = abrirPagina;
 
-  // =========================================================
-  // MENU
-  // =========================================================
+  window.abrirPagina =
+    abrirPagina;
+
 
   document.addEventListener(
     "click",
@@ -305,11 +418,13 @@
           "button[data-page]"
         );
 
+
       if (!botao)
         return;
 
+
       event.preventDefault();
-      event.stopPropagation();
+
 
       abrirPagina(
         botao.dataset.page
@@ -318,52 +433,142 @@
     }
   );
 
+
   // =========================================================
-  // DÍZIMO - PAINEL AUTOMÁTICO
+  // DASHBOARD
   // =========================================================
 
-  function renderTithePanel() {
+  function renderDashboard() {
 
-    const dashboard =
-      $("dashboard");
+    const totals =
+      getTotals();
 
-    if (!dashboard)
-      return;
 
-    let panel =
-      $("tithePanel");
+    if ($("saldo"))
+      $("saldo").textContent =
+        money(totals.saldo);
 
-    if (!panel) {
 
-      panel =
-        document.createElement("div");
+    if ($("entradas"))
+      $("entradas").textContent =
+        money(totals.entradas);
 
-      panel.id =
-        "tithePanel";
 
-      panel.className =
-        "panel";
+    if ($("despesas"))
+      $("despesas").textContent =
+        money(totals.despesas);
 
-      const resumo =
-        dashboard.querySelector(".grid");
 
-      if (resumo) {
+    if ($("poupado"))
+      $("poupado").textContent =
+        money(totals.poupado);
 
-        resumo.insertAdjacentElement(
-          "afterend",
-          panel
-        );
 
-      } else {
+    if ($("comprometido"))
+      $("comprometido").textContent =
+        totals.comprometido
+          .toFixed(0) +
+        "%";
 
-        dashboard.prepend(panel);
+
+    if ($("savingTotal"))
+      $("savingTotal").textContent =
+        money(totals.poupado);
+
+
+    const progresso =
+      Math.min(
+        100,
+        (
+          totals.poupado /
+          GOAL
+        ) * 100
+      );
+
+
+    if ($("saveBar"))
+      $("saveBar").style.width =
+        progresso + "%";
+
+
+    if ($("goalBar"))
+      $("goalBar").style.width =
+        progresso + "%";
+
+
+    if ($("goalPercent"))
+      $("goalPercent").textContent =
+        progresso.toFixed(0) +
+        "% da meta atingida";
+
+
+    if ($("saveText"))
+      $("saveText").textContent =
+        "Meta mensal: " +
+        money(GOAL) +
+        " • Poupado: " +
+        money(totals.poupado);
+
+
+    if ($("insight")) {
+
+      if (totals.saldo < 0) {
+
+        $("insight").textContent =
+          "⚠️ Atenção: o saldo está negativo após despesas e dízimo.";
+
+      }
+
+      else if (
+        totals.poupado >= GOAL
+      ) {
+
+        $("insight").textContent =
+          "🎉 Meta mensal de poupança atingida!";
+
+      }
+
+      else {
+
+        $("insight").textContent =
+          "💡 Faltam " +
+          money(
+            GOAL -
+            totals.poupado
+          ) +
+          " para atingir sua meta.";
 
       }
 
     }
 
+
+    renderCategories();
+
+    renderRecent();
+
+    renderTithePanel();
+
+  }
+
+
+  // =========================================================
+  // DÍZIMO
+  // =========================================================
+
+  function renderTithePanel() {
+
+    const panel =
+      $("tithePanel");
+
+
+    if (!panel)
+      return;
+
+
     const totals =
       getTotals();
+
 
     panel.innerHTML = `
 
@@ -374,82 +579,99 @@
           <h2>🙏 Dízimo</h2>
 
           <p>
-            10% calculado automaticamente sobre tudo que entrou.
+            10% calculado automaticamente
+            sobre tudo que entrou.
           </p>
 
         </div>
 
-        <strong style="
-          font-size:1.35rem;
-        ">
+        <strong
+          style="
+            font-size:1.35rem;
+          "
+        >
           ${money(totals.dizimo)}
         </strong>
 
       </div>
 
-      <div style="
-        display:grid;
-        grid-template-columns:
-        repeat(auto-fit,minmax(180px,1fr));
-        gap:12px;
-        margin-top:15px;
-      ">
 
-        <div style="
-          padding:15px;
-          border-radius:14px;
-          background:#f8fafc;
-        ">
+      <div
+        style="
+          display:grid;
+          grid-template-columns:
+          repeat(auto-fit,minmax(180px,1fr));
+          gap:12px;
+          margin-top:15px;
+        "
+      >
+
+        <div
+          style="
+            padding:15px;
+            border-radius:14px;
+            background:#f8fafc;
+          "
+        >
 
           <small>
             Total de entradas
           </small>
 
-          <strong style="
-            display:block;
-            margin-top:5px;
-            font-size:1.15rem;
-          ">
+          <strong
+            style="
+              display:block;
+              margin-top:5px;
+            "
+          >
             ${money(totals.entradas)}
           </strong>
 
         </div>
 
-        <div style="
-          padding:15px;
-          border-radius:14px;
-          background:#f8fafc;
-        ">
+
+        <div
+          style="
+            padding:15px;
+            border-radius:14px;
+            background:#f8fafc;
+          "
+        >
 
           <small>
-            Dízimo (10%)
+            Dízimo 10%
           </small>
 
-          <strong style="
-            display:block;
-            margin-top:5px;
-            font-size:1.15rem;
-          ">
+          <strong
+            style="
+              display:block;
+              margin-top:5px;
+            "
+          >
             ${money(totals.dizimo)}
           </strong>
 
         </div>
 
-        <div style="
-          padding:15px;
-          border-radius:14px;
-          background:#f8fafc;
-        ">
+
+        <div
+          style="
+            padding:15px;
+            border-radius:14px;
+            background:#f8fafc;
+          "
+        >
 
           <small>
-            Entrada após dízimo
+            Após dízimo
           </small>
 
-          <strong style="
-            display:block;
-            margin-top:5px;
-            font-size:1.15rem;
-          ">
+          <strong
+            style="
+              display:block;
+              margin-top:5px;
+            "
+          >
             ${money(
               totals.entradas -
               totals.dizimo
@@ -460,35 +682,42 @@
 
       </div>
 
-      <div style="
-        margin-top:15px;
-        padding:12px;
-        border-radius:12px;
-        background:#f1f5f9;
-      ">
 
-        <label style="
-          display:flex;
-          align-items:center;
-          gap:10px;
-          cursor:pointer;
-        ">
+      <div
+        style="
+          margin-top:15px;
+          padding:12px;
+          border-radius:12px;
+          background:#f1f5f9;
+        "
+      >
+
+        <label
+          style="
+            display:flex;
+            align-items:center;
+            gap:10px;
+          "
+        >
 
           <input
             type="checkbox"
             id="titheToggle"
-            ${state.titheEnabled ? "checked" : ""}
+            ${
+              state.titheEnabled
+                ? "checked"
+                : ""
+            }
           >
 
-          <span>
-            Calcular dízimo automaticamente
-          </span>
+          Calcular dízimo automaticamente
 
         </label>
 
       </div>
 
     `;
+
 
     $("titheToggle")
       ?.addEventListener(
@@ -507,103 +736,6 @@
 
   }
 
-  // =========================================================
-  // DASHBOARD
-  // =========================================================
-
-  function renderDashboard() {
-
-    const totals =
-      getTotals();
-
-    const progresso =
-      Math.min(
-        100,
-        (totals.poupado / GOAL) * 100
-      );
-
-    if ($("saldo"))
-      $("saldo").textContent =
-        money(totals.saldo);
-
-    if ($("entradas"))
-      $("entradas").textContent =
-        money(totals.entradas);
-
-    if ($("despesas"))
-      $("despesas").textContent =
-        money(totals.despesas);
-
-    if ($("poupado"))
-      $("poupado").textContent =
-        money(totals.poupado);
-
-    if ($("comprometido"))
-      $("comprometido").textContent =
-        totals.comprometido.toFixed(0) +
-        "%";
-
-    if ($("savingTotal"))
-      $("savingTotal").textContent =
-        money(totals.poupado);
-
-    if ($("saveBar"))
-      $("saveBar").style.width =
-        progresso + "%";
-
-    if ($("goalBar"))
-      $("goalBar").style.width =
-        progresso + "%";
-
-    if ($("goalPercent"))
-      $("goalPercent").textContent =
-        progresso.toFixed(0) +
-        "% da meta atingida";
-
-    if ($("saveText"))
-      $("saveText").textContent =
-        "Meta mensal: " +
-        money(GOAL) +
-        " • Poupado: " +
-        money(totals.poupado);
-
-    if ($("insight")) {
-
-      if (totals.saldo < 0) {
-
-        $("insight").textContent =
-          "⚠️ Atenção: suas despesas estão maiores que o valor disponível após o dízimo.";
-
-      }
-
-      else if (
-        totals.poupado >= GOAL
-      ) {
-
-        $("insight").textContent =
-          "🎉 Parabéns! Sua meta de poupança foi atingida.";
-
-      }
-
-      else {
-
-        $("insight").textContent =
-          "💡 Faltam " +
-          money(
-            GOAL -
-            totals.poupado
-          ) +
-          " para atingir sua meta.";
-
-      }
-
-    }
-
-    renderCategories();
-    renderRecent();
-    renderTithePanel();
-
-  }
 
   // =========================================================
   // CATEGORIAS
@@ -614,26 +746,39 @@
     const container =
       $("categories");
 
+
     if (!container)
       return;
 
+
     const categorias = {};
 
+
     getMonthEntries()
-      .filter(item =>
-        item.type === "despesa"
+      .filter(
+        item =>
+          item.type === "despesa"
       )
-      .forEach(item => {
+      .forEach(
+        item => {
 
-        const categoria =
-          item.category ||
-          "Outros";
+          const categoria =
+            item.category ||
+            "Outros";
 
-        categorias[categoria] =
-          (categorias[categoria] || 0) +
-          Number(item.amount || 0);
 
-      });
+          categorias[categoria] =
+            (
+              categorias[categoria] ||
+              0
+            ) +
+            Number(
+              item.amount || 0
+            );
+
+        }
+      );
+
 
     const lista =
       Object.entries(categorias)
@@ -642,19 +787,24 @@
             b[1] - a[1]
         );
 
+
     if (!lista.length) {
 
       container.innerHTML =
-        `<div class="empty">
+        `
+        <div class="empty">
           Nenhuma despesa cadastrada neste mês.
-        </div>`;
+        </div>
+        `;
 
       return;
 
     }
 
+
     const maior =
       lista[0][1] || 1;
+
 
     container.innerHTML =
       lista
@@ -662,11 +812,17 @@
           ([categoria, valor]) => {
 
             const percentual =
-              (valor / maior) * 100;
+              (
+                valor /
+                maior
+              ) * 100;
+
 
             return `
 
-              <div class="category-row">
+              <div
+                class="category-row"
+              >
 
                 <div>
 
@@ -682,13 +838,17 @@
 
                 </div>
 
-                <div class="category-track">
+
+                <div
+                  class="category-track"
+                >
 
                   <i
                     style="
-                      width:${percentual}%;
-                    ">
-                  </i>
+                      width:
+                      ${percentual}%;
+                    "
+                  ></i>
 
                 </div>
 
@@ -702,11 +862,20 @@
 
   }
 
+
   // =========================================================
-  // LANÇAMENTOS
+  // LANÇAMENTOS RECENTES
   // =========================================================
 
   function renderRecent() {
+
+    const container =
+      $("recent");
+
+
+    if (!container)
+      return;
+
 
     const lista =
       [...getMonthEntries()]
@@ -718,698 +887,71 @@
               )
         );
 
-    if ($("recent")) {
-
-      $("recent").innerHTML =
-        lista
-          .slice(0, 8)
-          .map(item => {
-
-            const sinal =
-              item.type === "entrada"
-                ? "+"
-                : "-";
-
-            return `
-
-              <div class="item">
-
-                <div>
-
-                  <strong>
-                    ${escapeHTML(
-                      item.desc
-                    )}
-                  </strong>
-
-                  <small>
-
-                    ${formatDate(
-                      item.date
-                    )}
-
-                    •
-
-                    ${escapeHTML(
-                      item.category ||
-                      "Outros"
-                    )}
-
-                  </small>
-
-                </div>
-
-                <div
-                  class="${item.type}"
-                >
-
-                  ${sinal}
-                  ${money(item.amount)}
-
-                  <button
-                    class="iconbtn"
-                    data-del="${item.id}"
-                    title="Excluir"
-                  >
-                    🗑️
-                  </button>
-
-                </div>
-
-              </div>
-
-            `;
-
-          })
-          .join("") ||
-
-        `<div class="empty">
-          Nenhum lançamento neste mês.
-        </div>`;
-
-    }
-
-    if ($("allList")) {
-
-      $("allList").innerHTML =
-        lista
-          .map(item => {
-
-            const sinal =
-              item.type === "entrada"
-                ? "+"
-                : "-";
-
-            return `
-
-              <div class="item">
-
-                <div>
-
-                  <strong>
-                    ${escapeHTML(
-                      item.desc
-                    )}
-                  </strong>
-
-                  <small>
-
-                    ${formatDate(
-                      item.date
-                    )}
-
-                    •
-
-                    ${escapeHTML(
-                      item.category ||
-                      "Outros"
-                    )}
-
-                  </small>
-
-                </div>
-
-                <div
-                  class="${item.type}"
-                >
-
-                  ${sinal}
-                  ${money(item.amount)}
-
-                  <button
-                    class="iconbtn"
-                    data-del="${item.id}"
-                    title="Excluir"
-                  >
-                    🗑️
-                  </button>
-
-                </div>
-
-              </div>
-
-            `;
-
-          })
-          .join("") ||
-
-        `<div class="empty">
-          Nenhum lançamento cadastrado.
-        </div>`;
-
-    }
-
-  }
-
-  // =========================================================
-  // POUPANÇA
-  // =========================================================
-
-  function renderSavings() {
-
-    const total =
-      state.savings
-        .filter(item =>
-          String(item.date || "")
-            .slice(0, 7) ===
-          getMonth()
-        )
-        .reduce(
-          (sum, item) =>
-            sum +
-            Number(item.amount || 0),
-          0
-        );
-
-    const percentual =
-      Math.min(
-        100,
-        (total / GOAL) * 100
-      );
-
-    if ($("savingTotal"))
-      $("savingTotal").textContent =
-        money(total);
-
-    if ($("goalPercent"))
-      $("goalPercent").textContent =
-        percentual.toFixed(0) +
-        "% da meta atingida";
-
-    if ($("goalBar"))
-      $("goalBar").style.width =
-        percentual + "%";
-
-  }
-
-  // =========================================================
-  // METAS
-  // =========================================================
-
-  function renderGoals() {
-
-    const container =
-      $("goals");
-
-    if (!container)
-      return;
-
-    if (!state.goals.length) {
-
-      container.innerHTML =
-        `<div class="empty">
-          Nenhuma meta criada.
-        </div>`;
-
-      return;
-
-    }
-
-    container.innerHTML =
-      state.goals
-        .map(meta => {
-
-          const objetivo =
-            Number(meta.target) || 1;
-
-          const atual =
-            Number(meta.current) || 0;
-
-          const percentual =
-            Math.min(
-              100,
-              (atual / objetivo) * 100
-            );
-
-          return `
-
-            <div class="goal-card">
-
-              <div class="panel-head">
-
-                <div>
-
-                  <strong>
-                    ${escapeHTML(
-                      meta.name
-                    )}
-                  </strong>
-
-                  <small>
-
-                    ${money(atual)}
-                    de
-                    ${money(objetivo)}
-
-                  </small>
-
-                </div>
-
-                <button
-                  class="iconbtn"
-                  data-goaldel="${meta.id}"
-                >
-                  🗑️
-                </button>
-
-              </div>
-
-              <div class="bar">
-
-                <i
-                  style="
-                    width:${percentual}%;
-                  ">
-                </i>
-
-              </div>
-
-              <small>
-                ${percentual.toFixed(0)}%
-                concluído
-              </small>
-
-            </div>
-
-          `;
-
-        })
-        .join("");
-
-  }
-
-  // =========================================================
-  // CONTAS
-  // =========================================================
-
-  function renderAccounts() {
-
-    const container =
-      $("accounts");
-
-    if (!container)
-      return;
-
-    if (!state.accounts.length) {
-
-      container.innerHTML =
-        `<div class="empty">
-          Nenhuma conta cadastrada.
-        </div>`;
-
-      return;
-
-    }
-
-    container.innerHTML =
-      state.accounts
-        .map(
-          conta => `
-
-            <div class="entity">
-
-              <div>
-
-                <strong>
-                  ${escapeHTML(
-                    conta.name
-                  )}
-                </strong>
-
-                <small>
-
-                  ${escapeHTML(
-                    conta.bank || ""
-                  )}
-
-                  •
-
-                  ${escapeHTML(
-                    conta.type || ""
-                  )}
-
-                </small>
-
-              </div>
-
-              <strong>
-                ${money(conta.amount)}
-              </strong>
-
-              <button
-                class="iconbtn"
-                data-entitydel="accounts"
-                data-id="${conta.id}"
-              >
-                🗑️
-              </button>
-
-            </div>
-
-          `
-        )
-        .join("");
-
-  }
-
-  // =========================================================
-  // CARTÕES
-  // =========================================================
-
-  function renderCards() {
-
-    const container =
-      $("cardsList");
-
-    if (!container)
-      return;
-
-    if (!state.cards.length) {
-
-      container.innerHTML =
-        `<div class="empty">
-          Nenhum cartão cadastrado.
-        </div>`;
-
-      return;
-
-    }
-
-    container.innerHTML =
-      state.cards
-        .map(
-          cartao => `
-
-            <div class="entity">
-
-              <div>
-
-                <strong>
-                  ${escapeHTML(
-                    cartao.name
-                  )}
-                </strong>
-
-                <small>
-
-                  ${escapeHTML(
-                    cartao.bank || ""
-                  )}
-
-                  •
-
-                  Limite:
-                  ${money(
-                    cartao.amount
-                  )}
-
-                  •
-
-                  Vencimento:
-                  ${escapeHTML(
-                    cartao.due || ""
-                  )}
-
-                </small>
-
-              </div>
-
-              <button
-                class="iconbtn"
-                data-entitydel="cards"
-                data-id="${cartao.id}"
-              >
-                🗑️
-              </button>
-
-            </div>
-
-          `
-        )
-        .join("");
-
-  }
-
-  // =========================================================
-  // DÍVIDAS
-  // =========================================================
-
-  function renderDebts() {
-
-    const container =
-      $("debtsList");
-
-    if (!container)
-      return;
-
-    if (!state.debts.length) {
-
-      container.innerHTML =
-        `<div class="empty">
-          Nenhuma dívida cadastrada.
-        </div>`;
-
-      return;
-
-    }
-
-    container.innerHTML =
-      state.debts
-        .map(
-          divida => `
-
-            <div class="entity">
-
-              <div>
-
-                <strong>
-                  ${escapeHTML(
-                    divida.name
-                  )}
-                </strong>
-
-                <small>
-
-                  Vencimento:
-                  ${escapeHTML(
-                    divida.due || ""
-                  )}
-
-                  •
-
-                  Parcelas:
-                  ${escapeHTML(
-                    divida.installments ||
-                    ""
-                  )}
-
-                </small>
-
-              </div>
-
-              <strong>
-                ${money(
-                  divida.amount
-                )}
-              </strong>
-
-              <button
-                class="iconbtn"
-                data-entitydel="debts"
-                data-id="${divida.id}"
-              >
-                🗑️
-              </button>
-
-            </div>
-
-          `
-        )
-        .join("");
-
-  }
-
-  // =========================================================
-  // INVESTIMENTOS
-  // =========================================================
-
-  function renderInvestments() {
-
-    const container =
-      $("investmentsList");
-
-    if (!container)
-      return;
-
-    if (!state.investments.length) {
-
-      container.innerHTML =
-        `<div class="empty">
-          Nenhum investimento cadastrado.
-        </div>`;
-
-      return;
-
-    }
-
-    container.innerHTML =
-      state.investments
-        .map(
-          investimento => `
-
-            <div class="entity">
-
-              <div>
-
-                <strong>
-                  ${escapeHTML(
-                    investimento.name
-                  )}
-                </strong>
-
-                <small>
-
-                  ${escapeHTML(
-                    investimento.type ||
-                    ""
-                  )}
-
-                  •
-
-                  ${escapeHTML(
-                    investimento.institution ||
-                    ""
-                  )}
-
-                </small>
-
-              </div>
-
-              <strong>
-                ${money(
-                  investimento.amount
-                )}
-              </strong>
-
-              <button
-                class="iconbtn"
-                data-entitydel="investments"
-                data-id="${investimento.id}"
-              >
-                🗑️
-              </button>
-
-            </div>
-
-          `
-        )
-        .join("");
-
-  }
-
-  // =========================================================
-  // ORÇAMENTO
-  // =========================================================
-
-  function renderBudgets() {
-
-    const container =
-      $("budgetList");
-
-    if (!container)
-      return;
-
-    const lista =
-      state.budgets.filter(
-        item =>
-          item.month ===
-          getMonth()
-      );
 
     if (!lista.length) {
 
       container.innerHTML =
-        `<div class="empty">
-          Nenhum orçamento definido para este mês.
-        </div>`;
+        `
+        <div class="empty">
+          Nenhum lançamento neste mês.
+        </div>
+        `;
 
       return;
 
     }
 
+
     container.innerHTML =
       lista
+        .slice(0, 8)
         .map(
-          orcamento => {
+          item => {
 
-            const gasto =
-              getMonthEntries()
-                .filter(
-                  item =>
-                    item.type ===
-                      "despesa" &&
-                    item.category ===
-                      orcamento.category
-                )
-                .reduce(
-                  (total, item) =>
-                    total +
-                    Number(
-                      item.amount || 0
-                    ),
-                  0
-                );
+            const entrada =
+              item.type === "entrada";
 
-            const percentual =
-              orcamento.amount
-                ? Math.min(
-                    100,
-                    (gasto /
-                      orcamento.amount) *
-                      100
-                  )
-                : 0;
 
             return `
 
-              <div class="entity">
+              <div
+                class="list-item"
+              >
 
                 <div>
 
                   <strong>
                     ${escapeHTML(
-                      orcamento.category
+                      item.description ||
+                      "Sem descrição"
                     )}
                   </strong>
 
                   <small>
-
-                    Orçamento:
-                    ${money(
-                      orcamento.amount
+                    ${formatDate(
+                      item.date
                     )}
-
                     •
-
-                    Gasto:
-                    ${money(gasto)}
-
+                    ${
+                      escapeHTML(
+                        item.category ||
+                        ""
+                      )
+                    }
                   </small>
-
-                  <div class="bar mini">
-
-                    <i
-                      style="
-                        width:${percentual}%;
-                      ">
-                    </i>
-
-                  </div>
 
                 </div>
 
+
                 <strong>
-                  ${percentual.toFixed(0)}%
+                  ${
+                    entrada
+                      ? "+"
+                      : "-"
+                  }
+                  ${money(
+                    item.amount
+                  )}
                 </strong>
 
               </div>
@@ -1422,1048 +964,1816 @@
 
   }
 
+
   // =========================================================
-  // RENDER GERAL
+  // TODOS OS LANÇAMENTOS
   // =========================================================
 
-  function render() {
+  function renderAllEntries() {
 
-    renderDashboard();
-    renderSavings();
-    renderGoals();
-    renderAccounts();
-    renderCards();
-    renderDebts();
-    renderInvestments();
-    renderBudgets();
+    const container =
+      $("allList");
+
+
+    if (!container)
+      return;
+
+
+    const lista =
+      [...state.entries]
+        .sort(
+          (a, b) =>
+            String(b.date)
+              .localeCompare(
+                String(a.date)
+              )
+        );
+
+
+    if (!lista.length) {
+
+      container.innerHTML =
+        `
+        <div class="empty">
+          Nenhum lançamento cadastrado.
+        </div>
+        `;
+
+      return;
+
+    }
+
+
+    container.innerHTML =
+      lista
+        .map(
+          item => {
+
+            const entrada =
+              item.type === "entrada";
+
+
+            return `
+
+              <div
+                class="list-item"
+              >
+
+                <div>
+
+                  <strong>
+                    ${escapeHTML(
+                      item.description ||
+                      "Sem descrição"
+                    )}
+                  </strong>
+
+                  <small>
+                    ${formatDate(
+                      item.date
+                    )}
+                    •
+                    ${escapeHTML(
+                      item.category ||
+                      ""
+                    )}
+                  </small>
+
+                </div>
+
+
+                <div
+                  style="
+                    display:flex;
+                    align-items:center;
+                    gap:10px;
+                  "
+                >
+
+                  <strong>
+                    ${
+                      entrada
+                        ? "+"
+                        : "-"
+                    }
+                    ${money(
+                      item.amount
+                    )}
+                  </strong>
+
+                  <button
+                    type="button"
+                    class="danger"
+                    data-delete-entry="${item.id}"
+                  >
+                    🗑️
+                  </button>
+
+                </div>
+
+              </div>
+
+            `;
+
+          }
+        )
+        .join("");
 
   }
+
+
+  // =========================================================
+  // POUPANÇA
+  // =========================================================
+
+  function renderSavings() {
+
+    const total =
+      state.savings
+        .filter(
+          item =>
+            String(item.date)
+              .slice(0, 7) ===
+            getMonth()
+        )
+        .reduce(
+          (sum, item) =>
+            sum +
+            Number(item.amount || 0),
+          0
+        );
+
+
+    if ($("savingTotal"))
+      $("savingTotal").textContent =
+        money(total);
+
+
+    const percentual =
+      Math.min(
+        100,
+        (total / GOAL) * 100
+      );
+
+
+    if ($("goalBar"))
+      $("goalBar").style.width =
+        percentual + "%";
+
+
+    if ($("goalPercent"))
+      $("goalPercent").textContent =
+        percentual.toFixed(0) +
+        "% da meta atingida";
+
+  }
+
+
+  // =========================================================
+  // METAS
+  // =========================================================
+
+  function renderGoals() {
+
+    const container =
+      $("goals");
+
+
+    if (!container)
+      return;
+
+
+    if (!state.goals.length) {
+
+      container.innerHTML =
+        `
+        <div class="empty">
+          Nenhuma meta cadastrada.
+        </div>
+        `;
+
+      return;
+
+    }
+
+
+    container.innerHTML =
+      state.goals
+        .map(
+          goal => {
+
+            const valor =
+              Number(
+                goal.current || 0
+              );
+
+            const alvo =
+              Number(
+                goal.target || 0
+              );
+
+
+            const percentual =
+              alvo > 0
+                ? Math.min(
+                    100,
+                    (
+                      valor /
+                      alvo
+                    ) * 100
+                  )
+                : 0;
+
+
+            return `
+
+              <div
+                class="goal-item"
+              >
+
+                <div>
+
+                  <strong>
+                    ${escapeHTML(
+                      goal.name
+                    )}
+                  </strong>
+
+                  <small>
+                    ${money(valor)}
+                    de
+                    ${money(alvo)}
+                  </small>
+
+                </div>
+
+
+                <div
+                  class="bar"
+                >
+
+                  <i
+                    style="
+                      width:
+                      ${percentual}%;
+                    "
+                  ></i>
+
+                </div>
+
+
+                <button
+                  type="button"
+                  class="danger"
+                  data-delete-goal="${goal.id}"
+                >
+                  Excluir
+                </button>
+
+              </div>
+
+            `;
+
+          }
+        )
+        .join("");
+
+  }
+
+
+  // =========================================================
+  // CONTAS
+  // =========================================================
+
+  function renderAccounts() {
+
+    const container =
+      $("accounts");
+
+
+    if (!container)
+      return;
+
+
+    if (!state.accounts.length) {
+
+      container.innerHTML =
+        `
+        <div class="empty">
+          Nenhuma conta cadastrada.
+        </div>
+        `;
+
+      return;
+
+    }
+
+
+    container.innerHTML =
+      state.accounts
+        .map(
+          account => `
+
+            <div
+              class="entity-card"
+            >
+
+              <div>
+
+                <strong>
+                  ${escapeHTML(
+                    account.name
+                  )}
+                </strong>
+
+                <span>
+                  ${escapeHTML(
+                    account.bank ||
+                    "Conta"
+                  )}
+                </span>
+
+              </div>
+
+
+              <div>
+
+                <strong>
+                  ${money(
+                    account.balance
+                  )}
+                </strong>
+
+                <button
+                  type="button"
+                  class="danger"
+                  data-delete-account="${account.id}"
+                >
+                  🗑️
+                </button>
+
+              </div>
+
+            </div>
+
+          `
+        )
+        .join("");
+
+  }
+
+
+  // =========================================================
+  // CARTÕES
+  // =========================================================
+
+  function renderCards() {
+
+    const container =
+      $("cardsList");
+
+
+    if (!container)
+      return;
+
+
+    if (!state.cards.length) {
+
+      container.innerHTML =
+        `
+        <div class="empty">
+          Nenhum cartão cadastrado.
+        </div>
+        `;
+
+      return;
+
+    }
+
+
+    container.innerHTML =
+      state.cards
+        .map(
+          card => `
+
+            <div
+              class="entity-card"
+            >
+
+              <div>
+
+                <strong>
+                  ${escapeHTML(
+                    card.name
+                  )}
+                </strong>
+
+                <span>
+                  ${escapeHTML(
+                    card.bank ||
+                    "Cartão"
+                  )}
+                </span>
+
+              </div>
+
+
+              <div>
+
+                <strong>
+                  Limite:
+                  ${money(
+                    card.limit
+                  )}
+                </strong>
+
+                <button
+                  type="button"
+                  class="danger"
+                  data-delete-card="${card.id}"
+                >
+                  🗑️
+                </button>
+
+              </div>
+
+            </div>
+
+          `
+        )
+        .join("");
+
+  }
+
+
+  // =========================================================
+  // DÍVIDAS
+  // =========================================================
+
+  function renderDebts() {
+
+    const container =
+      $("debtsList");
+
+
+    if (!container)
+      return;
+
+
+    if (!state.debts.length) {
+
+      container.innerHTML =
+        `
+        <div class="empty">
+          Nenhuma dívida cadastrada.
+        </div>
+        `;
+
+      return;
+
+    }
+
+
+    container.innerHTML =
+      state.debts
+        .map(
+          debt => `
+
+            <div
+              class="entity-card"
+            >
+
+              <div>
+
+                <strong>
+                  ${escapeHTML(
+                    debt.name
+                  )}
+                </strong>
+
+                <span>
+                  Vencimento:
+                  ${formatDate(
+                    debt.dueDate
+                  )}
+                </span>
+
+              </div>
+
+
+              <div>
+
+                <strong>
+                  ${money(
+                    debt.amount
+                  )}
+                </strong>
+
+                <button
+                  type="button"
+                  class="danger"
+                  data-delete-debt="${debt.id}"
+                >
+                  🗑️
+                </button>
+
+              </div>
+
+            </div>
+
+          `
+        )
+        .join("");
+
+  }
+
+
+  // =========================================================
+  // INVESTIMENTOS
+  // =========================================================
+
+  function renderInvestments() {
+
+    const container =
+      $("investmentsList");
+
+
+    if (!container)
+      return;
+
+
+    if (!state.investments.length) {
+
+      container.innerHTML =
+        `
+        <div class="empty">
+          Nenhum investimento cadastrado.
+        </div>
+        `;
+
+      return;
+
+    }
+
+
+    container.innerHTML =
+      state.investments
+        .map(
+          item => `
+
+            <div
+              class="entity-card"
+            >
+
+              <div>
+
+                <strong>
+                  ${escapeHTML(
+                    item.name
+                  )}
+                </strong>
+
+                <span>
+                  ${escapeHTML(
+                    item.type ||
+                    "Investimento"
+                  )}
+                </span>
+
+              </div>
+
+
+              <div>
+
+                <strong>
+                  ${money(
+                    item.amount
+                  )}
+                </strong>
+
+                <button
+                  type="button"
+                  class="danger"
+                  data-delete-investment="${item.id}"
+                >
+                  🗑️
+                </button>
+
+              </div>
+
+            </div>
+
+          `
+        )
+        .join("");
+
+  }
+
+
+  // =========================================================
+  // ORÇAMENTO
+  // =========================================================
+
+  function renderBudgets() {
+
+    const container =
+      $("budgetList");
+
+
+    if (!container)
+      return;
+
+
+    if (!state.budgets.length) {
+
+      container.innerHTML =
+        `
+        <div class="empty">
+          Nenhum orçamento cadastrado.
+        </div>
+        `;
+
+      return;
+
+    }
+
+
+    container.innerHTML =
+      state.budgets
+        .map(
+          item => `
+
+            <div
+              class="entity-card"
+            >
+
+              <div>
+
+                <strong>
+                  ${escapeHTML(
+                    item.category
+                  )}
+                </strong>
+
+                <span>
+                  Orçamento mensal
+                </span>
+
+              </div>
+
+
+              <div>
+
+                <strong>
+                  ${money(
+                    item.amount
+                  )}
+                </strong>
+
+                <button
+                  type="button"
+                  class="danger"
+                  data-delete-budget="${item.id}"
+                >
+                  🗑️
+                </button>
+
+              </div>
+
+            </div>
+
+          `
+        )
+        .join("");
+
+  }
+
+
+  // =========================================================
+  // OPEN FINANCE
+  // =========================================================
+
+  function renderOpenFinance() {
+
+    const balance =
+      $("openFinanceBalance");
+
+
+    if (balance) {
+
+      const saldo =
+        state.bankConnections
+          .filter(
+            item =>
+              item.connected
+          )
+          .reduce(
+            (total, item) =>
+              total +
+              Number(
+                item.balance || 0
+              ),
+            0
+          );
+
+
+      balance.textContent =
+        money(saldo);
+
+    }
+
+
+    const status =
+      $("openFinanceStatus");
+
+
+    if (status) {
+
+      if (
+        state.bankConnections.length
+      ) {
+
+        status.textContent =
+          "🔄 Contas preparadas para sincronização.";
+
+      } else {
+
+        status.textContent =
+          "Nenhuma conta bancária conectada.";
+
+      }
+
+    }
+
+  }
+
 
   // =========================================================
   // MODAL
   // =========================================================
 
   function openModal(
-    tipo,
-    subtipo = ""
+    kind,
+    type = ""
   ) {
 
-    if (!$("modal"))
+    const modal =
+      $("modal");
+
+
+    const fields =
+      $("dynamicFields");
+
+
+    if (!modal || !fields)
       return;
 
+
     $("formKind").value =
-      tipo;
+      kind;
+
 
     $("type").value =
-      subtipo;
+      type;
 
-    let titulo =
+
+    let title =
       "Novo registro";
 
-    if (tipo === "entry") {
 
-      titulo =
-        subtipo === "entrada"
+    if (
+      kind === "entry"
+    ) {
+
+      title =
+        type === "entrada"
           ? "Nova entrada"
           : "Nova despesa";
 
     }
 
-    if (tipo === "account")
-      titulo =
-        "Nova conta";
 
-    if (tipo === "card")
-      titulo =
-        "Novo cartão";
+    if (
+      kind === "saving"
+    )
+      title =
+        "Registrar poupança";
 
-    if (tipo === "debt")
-      titulo =
-        "Nova dívida";
 
-    if (tipo === "investment")
-      titulo =
-        "Novo investimento";
-
-    if (tipo === "goal")
-      titulo =
+    if (
+      kind === "goal"
+    )
+      title =
         "Nova meta";
 
-    if (tipo === "budget")
-      titulo =
+
+    if (
+      kind === "account"
+    )
+      title =
+        "Nova conta";
+
+
+    if (
+      kind === "card"
+    )
+      title =
+        "Novo cartão";
+
+
+    if (
+      kind === "debt"
+    )
+      title =
+        "Nova dívida";
+
+
+    if (
+      kind === "investment"
+    )
+      title =
+        "Novo investimento";
+
+
+    if (
+      kind === "budget"
+    )
+      title =
         "Novo orçamento";
 
+
     $("modalTitle").textContent =
-      titulo;
+      title;
 
-    let html = "";
 
-    // =======================================================
-    // ENTRADA / DESPESA
-    // =======================================================
+    if (
+      kind === "entry"
+    ) {
 
-    if (tipo === "entry") {
-
-      const categorias =
-        subtipo === "entrada"
-
-          ? [
-              "Salário",
-              "Renda extra",
-              "Investimentos",
-              "Outros"
-            ]
-
-          : [
-              "Moradia",
-              "Alimentação",
-              "Transporte",
-              "Cartão",
-              "Saúde",
-              "Academia",
-              "Lazer",
-              "Contas",
-              "Dívidas",
-              "Outros"
-            ];
-
-      html = `
+      fields.innerHTML = `
 
         <label>
-
-          Data
-
+          Descrição
           <input
-            id="f_date"
+            name="description"
+            required
+            placeholder="Ex.: Salário"
+          >
+        </label>
+
+        <label>
+          Valor
+          <input
+            name="amount"
+            type="number"
+            step="0.01"
+            min="0"
+            required
+          >
+        </label>
+
+        <label>
+          Data
+          <input
+            name="date"
             type="date"
             value="${today()}"
             required
           >
-
         </label>
 
         <label>
-
-          Descrição
-
-          <input
-            id="f_name"
-            placeholder="Ex.: Salário"
-            required
-          >
-
-        </label>
-
-        <label>
-
           Categoria
-
-          <select
-            id="f_category"
+          <input
+            name="category"
+            placeholder="Ex.: Salário, Mercado, Casa"
           >
+        </label>
 
-            ${categorias
+        <label>
+          Conta
+          <select name="account">
+            <option value="">
+              Não informar
+            </option>
+            ${state.accounts
               .map(
-                categoria =>
-                  `<option>
-                    ${categoria}
-                  </option>`
+                account => `
+                  <option value="${escapeHTML(
+                    account.id
+                  )}">
+                    ${escapeHTML(
+                      account.name
+                    )}
+                  </option>
+                `
               )
               .join("")}
-
           </select>
-
         </label>
 
+      `;
+
+    }
+
+
+    else if (
+      kind === "saving"
+    ) {
+
+      fields.innerHTML = `
+
         <label>
-
-          Valor
-
+          Valor poupado
           <input
-            id="f_amount"
+            name="amount"
             type="number"
-            min="0.01"
             step="0.01"
+            min="0"
             required
           >
-
         </label>
 
         <label>
-
-          Forma de pagamento
-
+          Data
           <input
-            id="f_method"
-            placeholder="Pix, débito, crédito..."
+            name="date"
+            type="date"
+            value="${today()}"
+            required
           >
-
         </label>
 
         <label>
-
           Observação
-
-          <textarea
-            id="f_note"
-          ></textarea>
-
+          <input
+            name="description"
+            placeholder="Ex.: Reserva mensal"
+          >
         </label>
 
       `;
 
     }
 
-    // =======================================================
-    // CONTA
-    // =======================================================
 
-    if (tipo === "account") {
+    else if (
+      kind === "goal"
+    ) {
 
-      html = `
-
-        <label>
-
-          Nome da conta
-
-          <input
-            id="f_name"
-            placeholder="Ex.: Nubank"
-            required
-          >
-
-        </label>
+      fields.innerHTML = `
 
         <label>
-
-          Banco
-
-          <input
-            id="f_bank"
-          >
-
-        </label>
-
-        <label>
-
-          Tipo
-
-          <input
-            id="f_type"
-            placeholder="Corrente ou poupança"
-          >
-
-        </label>
-
-        <label>
-
-          Saldo
-
-          <input
-            id="f_amount"
-            type="number"
-            step="0.01"
-            required
-          >
-
-        </label>
-
-      `;
-
-    }
-
-    // =======================================================
-    // CARTÃO
-    // =======================================================
-
-    if (tipo === "card") {
-
-      html = `
-
-        <label>
-
-          Nome do cartão
-
-          <input
-            id="f_name"
-            placeholder="Ex.: Nubank"
-            required
-          >
-
-        </label>
-
-        <label>
-
-          Banco
-
-          <input
-            id="f_bank"
-          >
-
-        </label>
-
-        <label>
-
-          Limite
-
-          <input
-            id="f_amount"
-            type="number"
-            step="0.01"
-            required
-          >
-
-        </label>
-
-        <label>
-
-          Vencimento
-
-          <input
-            id="f_due"
-            placeholder="Dia 10"
-          >
-
-        </label>
-
-      `;
-
-    }
-
-    // =======================================================
-    // DÍVIDA
-    // =======================================================
-
-    if (tipo === "debt") {
-
-      html = `
-
-        <label>
-
-          Nome da dívida
-
-          <input
-            id="f_name"
-            placeholder="Ex.: Empréstimo"
-            required
-          >
-
-        </label>
-
-        <label>
-
-          Valor
-
-          <input
-            id="f_amount"
-            type="number"
-            step="0.01"
-            required
-          >
-
-        </label>
-
-        <label>
-
-          Vencimento
-
-          <input
-            id="f_due"
-          >
-
-        </label>
-
-        <label>
-
-          Parcelas
-
-          <input
-            id="f_installments"
-            type="number"
-            min="1"
-          >
-
-        </label>
-
-      `;
-
-    }
-
-    // =======================================================
-    // INVESTIMENTO
-    // =======================================================
-
-    if (tipo === "investment") {
-
-      html = `
-
-        <label>
-
-          Investimento
-
-          <input
-            id="f_name"
-            placeholder="Ex.: Tesouro Direto"
-            required
-          >
-
-        </label>
-
-        <label>
-
-          Tipo
-
-          <input
-            id="f_type"
-          >
-
-        </label>
-
-        <label>
-
-          Instituição
-
-          <input
-            id="f_institution"
-          >
-
-        </label>
-
-        <label>
-
-          Valor atual
-
-          <input
-            id="f_amount"
-            type="number"
-            step="0.01"
-            required
-          >
-
-        </label>
-
-      `;
-
-    }
-
-    // =======================================================
-    // META
-    // =======================================================
-
-    if (tipo === "goal") {
-
-      html = `
-
-        <label>
-
           Nome da meta
-
           <input
-            id="f_name"
-            placeholder="Ex.: Reserva de emergência"
+            name="name"
             required
+            placeholder="Ex.: Viagem"
           >
-
         </label>
 
         <label>
-
           Valor da meta
-
           <input
-            id="f_amount"
+            name="target"
             type="number"
             step="0.01"
+            min="0"
             required
           >
-
         </label>
 
         <label>
-
-          Já acumulado
-
+          Valor já acumulado
           <input
-            id="f_current"
+            name="current"
+            type="number"
+            step="0.01"
+            min="0"
+            value="0"
+          >
+        </label>
+
+      `;
+
+    }
+
+
+    else if (
+      kind === "account"
+    ) {
+
+      fields.innerHTML = `
+
+        <label>
+          Nome da conta
+          <input
+            name="name"
+            required
+            placeholder="Ex.: Nubank Eduardo"
+          >
+        </label>
+
+        <label>
+          Banco
+          <select name="bank">
+            <option>Nubank</option>
+            <option>Banco do Brasil</option>
+            <option>Santander</option>
+            <option>Outro</option>
+          </select>
+        </label>
+
+        <label>
+          Saldo inicial
+          <input
+            name="balance"
             type="number"
             step="0.01"
             value="0"
           >
-
         </label>
 
       `;
 
     }
 
-    // =======================================================
-    // ORÇAMENTO
-    // =======================================================
 
-    if (tipo === "budget") {
+    else if (
+      kind === "card"
+    ) {
 
-      const categorias = [
-
-        "Moradia",
-        "Alimentação",
-        "Transporte",
-        "Cartão",
-        "Saúde",
-        "Academia",
-        "Lazer",
-        "Contas",
-        "Dívidas",
-        "Outros"
-
-      ];
-
-      html = `
+      fields.innerHTML = `
 
         <label>
-
-          Categoria
-
-          <select
-            id="f_category"
+          Nome do cartão
+          <input
+            name="name"
+            required
+            placeholder="Ex.: Nubank Eduardo"
           >
-
-            ${categorias
-              .map(
-                categoria =>
-                  `<option>
-                    ${categoria}
-                  </option>`
-              )
-              .join("")}
-
-          </select>
-
         </label>
 
         <label>
+          Banco
+          <select name="bank">
+            <option>Nubank</option>
+            <option>Banco do Brasil</option>
+            <option>Santander</option>
+            <option>Outro</option>
+          </select>
+        </label>
 
-          Valor mensal
-
+        <label>
+          Limite
           <input
-            id="f_amount"
+            name="limit"
             type="number"
             step="0.01"
-            required
+            value="0"
           >
-
         </label>
 
       `;
 
     }
 
-    $("dynamicFields").innerHTML =
-      html;
 
-    $("modal")
-      .classList
-      .remove("hidden");
+    else if (
+      kind === "debt"
+    ) {
+
+      fields.innerHTML = `
+
+        <label>
+          Nome da dívida
+          <input
+            name="name"
+            required
+          >
+        </label>
+
+        <label>
+          Valor
+          <input
+            name="amount"
+            type="number"
+            step="0.01"
+            min="0"
+            required
+          >
+        </label>
+
+        <label>
+          Vencimento
+          <input
+            name="dueDate"
+            type="date"
+          >
+        </label>
+
+      `;
+
+    }
+
+
+    else if (
+      kind === "investment"
+    ) {
+
+      fields.innerHTML = `
+
+        <label>
+          Investimento
+          <input
+            name="name"
+            required
+            placeholder="Ex.: Tesouro Direto"
+          >
+        </label>
+
+        <label>
+          Tipo
+          <input
+            name="type"
+            placeholder="Renda fixa, ações..."
+          >
+        </label>
+
+        <label>
+          Valor
+          <input
+            name="amount"
+            type="number"
+            step="0.01"
+            min="0"
+            required
+          >
+        </label>
+
+      `;
+
+    }
+
+
+    else if (
+      kind === "budget"
+    ) {
+
+      fields.innerHTML = `
+
+        <label>
+          Categoria
+          <input
+            name="category"
+            required
+            placeholder="Ex.: Mercado"
+          >
+        </label>
+
+        <label>
+          Valor mensal
+          <input
+            name="amount"
+            type="number"
+            step="0.01"
+            min="0"
+            required
+          >
+        </label>
+
+      `;
+
+    }
+
+
+    modal.classList.remove(
+      "hidden"
+    );
 
   }
+
 
   function closeModal() {
 
-    if ($("modal")) {
-
-      $("modal")
-        .classList
-        .add("hidden");
-
-    }
+    $("modal")
+      ?.classList.add(
+        "hidden"
+      );
 
   }
 
-  // =========================================================
-  // BOTÕES
-  // =========================================================
-
-  $("newEntry")?.addEventListener(
-    "click",
-    () =>
-      openModal(
-        "entry",
-        "entrada"
-      )
-  );
-
-  $("newExpense")?.addEventListener(
-    "click",
-    () =>
-      openModal(
-        "entry",
-        "despesa"
-      )
-  );
-
-  $("addAccount")?.addEventListener(
-    "click",
-    () =>
-      openModal(
-        "account"
-      )
-  );
-
-  $("addCard")?.addEventListener(
-    "click",
-    () =>
-      openModal(
-        "card"
-      )
-  );
-
-  $("addDebt")?.addEventListener(
-    "click",
-    () =>
-      openModal(
-        "debt"
-      )
-  );
-
-  $("addInvestment")?.addEventListener(
-    "click",
-    () =>
-      openModal(
-        "investment"
-      )
-  );
-
-  $("addGoal")?.addEventListener(
-    "click",
-    () =>
-      openModal(
-        "goal"
-      )
-  );
-
-  $("setBudget")?.addEventListener(
-    "click",
-    () =>
-      openModal(
-        "budget"
-      )
-  );
-
-  $("closeModal")?.addEventListener(
-    "click",
-    closeModal
-  );
-
-  $("monthFilter")?.addEventListener(
-    "change",
-    render
-  );
-
-  // =========================================================
-  // POUPANÇA
-  // =========================================================
-
-  $("addSaving")?.addEventListener(
-    "click",
-    () => {
-
-      const resposta =
-        prompt(
-          "Quanto você poupou?",
-          "100"
-        );
-
-      if (
-        resposta === null
-      )
-        return;
-
-      const valor =
-        Number(
-          resposta
-            .replace(",", ".")
-        );
-
-      if (
-        !valor ||
-        valor <= 0
-      )
-        return;
-
-      state.savings.push({
-
-        id:
-          Date.now(),
-
-        date:
-          today(),
-
-        amount:
-          valor
-
-      });
-
-      save();
-
-      render();
-
-    }
-  );
 
   // =========================================================
   // FORMULÁRIO
   // =========================================================
 
-  $("form")?.addEventListener(
-    "submit",
-    event => {
+  $("form")
+    ?.addEventListener(
+      "submit",
+      event => {
 
-      event.preventDefault();
+        event.preventDefault();
 
-      const tipo =
-        $("formKind").value;
 
-      const id =
-        Date.now();
+        const form =
+          event.target;
 
-      const nome =
-        $("f_name")
-          ?.value
-          ?.trim() ||
-        "";
 
-      const valor =
-        Number(
-          $("f_amount")
-            ?.value ||
-          0
-        );
+        const data =
+          Object.fromEntries(
+            new FormData(form)
+          );
 
-      // =====================================================
-      // LANÇAMENTO
-      // =====================================================
 
-      if (
-        tipo === "entry"
-      ) {
+        const kind =
+          $("formKind").value;
 
-        const tipoLancamento =
+
+        const type =
           $("type").value;
 
-        state.entries.push({
 
-          id,
+        if (
+          kind === "entry"
+        ) {
 
-          type:
-            tipoLancamento,
+          state.entries.push({
 
-          date:
-            $("f_date").value,
+            id:
+              uid("entry"),
 
-          desc:
-            nome,
+            description:
+              data.description,
 
-          category:
-            $("f_category").value,
+            amount:
+              Number(
+                data.amount
+              ),
 
-          amount:
-            valor,
+            date:
+              data.date,
 
-          method:
-            $("f_method")
-              ?.value
-              ?.trim() ||
-            "",
+            category:
+              data.category ||
+              "Outros",
 
-          note:
-            $("f_note")
-              ?.value
-              ?.trim() ||
-            ""
+            account:
+              data.account ||
+              "",
 
-        });
+            type
+
+          });
+
+        }
+
+
+        else if (
+          kind === "saving"
+        ) {
+
+          state.savings.push({
+
+            id:
+              uid("saving"),
+
+            amount:
+              Number(
+                data.amount
+              ),
+
+            date:
+              data.date,
+
+            description:
+              data.description ||
+              ""
+
+          });
+
+        }
+
+
+        else if (
+          kind === "goal"
+        ) {
+
+          state.goals.push({
+
+            id:
+              uid("goal"),
+
+            name:
+              data.name,
+
+            target:
+              Number(
+                data.target
+              ),
+
+            current:
+              Number(
+                data.current || 0
+              )
+
+          });
+
+        }
+
+
+        else if (
+          kind === "account"
+        ) {
+
+          state.accounts.push({
+
+            id:
+              uid("account"),
+
+            name:
+              data.name,
+
+            bank:
+              data.bank,
+
+            balance:
+              Number(
+                data.balance || 0
+              ),
+
+            source:
+              "manual"
+
+          });
+
+        }
+
+
+        else if (
+          kind === "card"
+        ) {
+
+          state.cards.push({
+
+            id:
+              uid("card"),
+
+            name:
+              data.name,
+
+            bank:
+              data.bank,
+
+            limit:
+              Number(
+                data.limit || 0
+              ),
+
+            source:
+              "manual"
+
+          });
+
+        }
+
+
+        else if (
+          kind === "debt"
+        ) {
+
+          state.debts.push({
+
+            id:
+              uid("debt"),
+
+            name:
+              data.name,
+
+            amount:
+              Number(
+                data.amount
+              ),
+
+            dueDate:
+              data.dueDate ||
+              ""
+
+          });
+
+        }
+
+
+        else if (
+          kind === "investment"
+        ) {
+
+          state.investments.push({
+
+            id:
+              uid("investment"),
+
+            name:
+              data.name,
+
+            type:
+              data.type ||
+              "",
+
+            amount:
+              Number(
+                data.amount
+              )
+
+          });
+
+        }
+
+
+        else if (
+          kind === "budget"
+        ) {
+
+          state.budgets.push({
+
+            id:
+              uid("budget"),
+
+            category:
+              data.category,
+
+            amount:
+              Number(
+                data.amount
+              )
+
+          });
+
+        }
+
+
+        save();
+
+        closeModal();
+
+        render();
 
       }
+    );
 
-      // =====================================================
-      // CONTA
-      // =====================================================
-
-      else if (
-        tipo === "account"
-      ) {
-
-        state.accounts.push({
-
-          id,
-
-          name:
-            nome,
-
-          bank:
-            $("f_bank")
-              .value
-              .trim(),
-
-          type:
-            $("f_type")
-              .value
-              .trim(),
-
-          amount:
-            valor
-
-        });
-
-      }
-
-      // =====================================================
-      // CARTÃO
-      // =====================================================
-
-      else if (
-        tipo === "card"
-      ) {
-
-        state.cards.push({
-
-          id,
-
-          name:
-            nome,
-
-          bank:
-            $("f_bank")
-              .value
-              .trim(),
-
-          amount:
-            valor,
-
-          due:
-            $("f_due")
-              .value
-              .trim()
-
-        });
-
-      }
-
-      // =====================================================
-      // DÍVIDA
-      // =====================================================
-
-      else if (
-        tipo === "debt"
-      ) {
-
-        state.debts.push({
-
-          id,
-
-          name:
-            nome,
-
-          amount:
-            valor,
-
-          due:
-            $("f_due")
-              .value
-              .trim(),
-
-          installments:
-            $("f_installments")
-              .value
-
-        });
-
-      }
-
-      // =====================================================
-      // INVESTIMENTO
-      // =====================================================
-
-      else if (
-        tipo === "investment"
-      ) {
-
-        state.investments.push({
-
-          id,
-
-          name:
-            nome,
-
-          type:
-            $("f_type")
-              .value
-              .trim(),
-
-          institution:
-            $("f_institution")
-              .value
-              .trim(),
-
-          amount:
-            valor
-
-        });
-
-      }
-
-      // =====================================================
-      // META
-      // =====================================================
-
-      else if (
-        tipo === "goal"
-      ) {
-
-        state.goals.push({
-
-          id,
-
-          name:
-            nome,
-
-          target:
-            valor,
-
-          current:
-            Number(
-              $("f_current")
-                .value ||
-              0
-            )
-
-        });
-
-      }
-
-      // =====================================================
-      // ORÇAMENTO
-      // =====================================================
-
-      else if (
-        tipo === "budget"
-      ) {
-
-        state.budgets.push({
-
-          id,
-
-          month:
-            getMonth(),
-
-          category:
-            $("f_category")
-              .value,
-
-          amount:
-            valor
-
-        });
-
-      }
-
-      save();
-
-      closeModal();
-
-      render();
-
-    }
-  );
 
   // =========================================================
-  // EXCLUSÃO
+  // BOTÕES DE NOVO REGISTRO
+  // =========================================================
+
+  $("newEntry")
+    ?.addEventListener(
+      "click",
+      () =>
+        openModal(
+          "entry",
+          "entrada"
+        )
+    );
+
+
+  $("newExpense")
+    ?.addEventListener(
+      "click",
+      () =>
+        openModal(
+          "entry",
+          "despesa"
+        )
+    );
+
+
+  $("addSaving")
+    ?.addEventListener(
+      "click",
+      () =>
+        openModal(
+          "saving"
+        )
+    );
+
+
+  $("addGoal")
+    ?.addEventListener(
+      "click",
+      () =>
+        openModal(
+          "goal"
+        )
+    );
+
+
+  $("addAccount")
+    ?.addEventListener(
+      "click",
+      () =>
+        openModal(
+          "account"
+        )
+    );
+
+
+  $("addCard")
+    ?.addEventListener(
+      "click",
+      () =>
+        openModal(
+          "card"
+        )
+    );
+
+
+  $("addDebt")
+    ?.addEventListener(
+      "click",
+      () =>
+        openModal(
+          "debt"
+        )
+    );
+
+
+  $("addInvestment")
+    ?.addEventListener(
+      "click",
+      () =>
+        openModal(
+          "investment"
+        )
+    );
+
+
+  $("setBudget")
+    ?.addEventListener(
+      "click",
+      () =>
+        openModal(
+          "budget"
+        )
+    );
+
+
+  $("closeModal")
+    ?.addEventListener(
+      "click",
+      closeModal
+    );
+
+
+  $("cancelModal")
+    ?.addEventListener(
+      "click",
+      closeModal
+    );
+
+
+  $("modal")
+    ?.addEventListener(
+      "click",
+      event => {
+
+        if (
+          event.target.id ===
+          "modal"
+        ) {
+
+          closeModal();
+
+        }
+
+      }
+    );
+
+
+  // =========================================================
+  // EXCLUSÕES
   // =========================================================
 
   document.addEventListener(
     "click",
     event => {
 
-      // -----------------------------------------------------
-      // LANÇAMENTO
-      // -----------------------------------------------------
-
-      const lancamento =
+      const entry =
         event.target.closest(
-          "[data-del]"
+          "[data-delete-entry]"
         );
 
-      if (lancamento) {
 
-        state.entries =
-          state.entries.filter(
-            item =>
-              String(item.id) !==
-              String(
-                lancamento.dataset.del
-              )
-          );
+      if (entry) {
 
-        save();
+        const id =
+          entry.dataset.deleteEntry;
 
-        render();
-
-        return;
-
-      }
-
-      // -----------------------------------------------------
-      // META
-      // -----------------------------------------------------
-
-      const meta =
-        event.target.closest(
-          "[data-goaldel]"
-        );
-
-      if (meta) {
-
-        state.goals =
-          state.goals.filter(
-            item =>
-              String(item.id) !==
-              String(
-                meta.dataset.goaldel
-              )
-          );
-
-        save();
-
-        render();
-
-        return;
-
-      }
-
-      // -----------------------------------------------------
-      // ENTIDADES
-      // -----------------------------------------------------
-
-      const entidade =
-        event.target.closest(
-          "[data-entitydel]"
-        );
-
-      if (entidade) {
-
-        const grupo =
-          entidade.dataset.entitydel;
 
         if (
-          state[grupo]
+          confirm(
+            "Excluir este lançamento?"
+          )
         ) {
 
-          state[grupo] =
-            state[grupo].filter(
+          state.entries =
+            state.entries.filter(
               item =>
-                String(item.id) !==
-                String(
-                  entidade.dataset.id
-                )
+                item.id !== id
+            );
+
+          save();
+
+          render();
+
+        }
+
+        return;
+
+      }
+
+
+      const goal =
+        event.target.closest(
+          "[data-delete-goal]"
+        );
+
+
+      if (goal) {
+
+        if (
+          confirm(
+            "Excluir esta meta?"
+          )
+        ) {
+
+          state.goals =
+            state.goals.filter(
+              item =>
+                item.id !==
+                goal.dataset.deleteGoal
+            );
+
+          save();
+
+          render();
+
+        }
+
+        return;
+
+      }
+
+
+      const account =
+        event.target.closest(
+          "[data-delete-account]"
+        );
+
+
+      if (account) {
+
+        if (
+          confirm(
+            "Excluir esta conta?"
+          )
+        ) {
+
+          state.accounts =
+            state.accounts.filter(
+              item =>
+                item.id !==
+                account.dataset.deleteAccount
+            );
+
+          save();
+
+          render();
+
+        }
+
+        return;
+
+      }
+
+
+      const card =
+        event.target.closest(
+          "[data-delete-card]"
+        );
+
+
+      if (card) {
+
+        if (
+          confirm(
+            "Excluir este cartão?"
+          )
+        ) {
+
+          state.cards =
+            state.cards.filter(
+              item =>
+                item.id !==
+                card.dataset.deleteCard
+            );
+
+          save();
+
+          render();
+
+        }
+
+        return;
+
+      }
+
+
+      const debt =
+        event.target.closest(
+          "[data-delete-debt]"
+        );
+
+
+      if (debt) {
+
+        if (
+          confirm(
+            "Excluir esta dívida?"
+          )
+        ) {
+
+          state.debts =
+            state.debts.filter(
+              item =>
+                item.id !==
+                debt.dataset.deleteDebt
+            );
+
+          save();
+
+          render();
+
+        }
+
+        return;
+
+      }
+
+
+      const investment =
+        event.target.closest(
+          "[data-delete-investment]"
+        );
+
+
+      if (investment) {
+
+        if (
+          confirm(
+            "Excluir este investimento?"
+          )
+        ) {
+
+          state.investments =
+            state.investments.filter(
+              item =>
+                item.id !==
+                investment.dataset
+                  .deleteInvestment
+            );
+
+          save();
+
+          render();
+
+        }
+
+        return;
+
+      }
+
+
+      const budget =
+        event.target.closest(
+          "[data-delete-budget]"
+        );
+
+
+      if (budget) {
+
+        if (
+          confirm(
+            "Excluir este orçamento?"
+          )
+        ) {
+
+          state.budgets =
+            state.budgets.filter(
+              item =>
+                item.id !==
+                budget.dataset
+                  .deleteBudget
             );
 
           save();
@@ -2477,149 +2787,240 @@
     }
   );
 
+
+  // =========================================================
+  // MÊS
+  // =========================================================
+
+  $("monthFilter")
+    ?.addEventListener(
+      "change",
+      render
+    );
+
+
+  if ($("monthFilter")) {
+
+    $("monthFilter").value =
+      currentMonth();
+
+  }
+
+
   // =========================================================
   // EXPORTAR CSV
   // =========================================================
 
-  $("exportBtn")?.addEventListener(
-    "click",
-    () => {
+  $("exportBtn")
+    ?.addEventListener(
+      "click",
+      () => {
 
-      const linhas = [
+        if (!state.entries.length) {
 
-        [
-          "Tipo",
-          "Data",
-          "Descrição",
-          "Categoria",
-          "Valor",
-          "Forma",
-          "Observação"
-        ],
+          alert(
+            "Não existem lançamentos para exportar."
+          );
 
-        ...state.entries.map(
-          item => [
+          return;
 
-            item.type,
-            item.date,
-            item.desc,
-            item.category,
-            item.amount,
-            item.method,
-            item.note
+        }
 
-          ]
-        )
 
-      ];
-
-      const csv =
-        linhas
-          .map(
-            linha =>
-              linha
-                .map(
-                  valor =>
-                    `"${String(
-                      valor ?? ""
-                    ).replaceAll(
-                      '"',
-                      '""'
-                    )}"`
-                )
-                .join(";")
-          )
-          .join("\n");
-
-      const blob =
-        new Blob(
+        const linhas = [
           [
-            "\ufeff" +
-            csv
-          ],
-          {
-            type:
-              "text/csv;charset=utf-8"
+            "Data",
+            "Descrição",
+            "Tipo",
+            "Categoria",
+            "Valor"
+          ]
+        ];
+
+
+        state.entries.forEach(
+          item => {
+
+            linhas.push([
+              item.date,
+              item.description,
+              item.type,
+              item.category,
+              Number(
+                item.amount || 0
+              )
+                .toFixed(2)
+                .replace(".", ",")
+            ]);
+
           }
         );
 
-      const link =
-        document.createElement(
-          "a"
+
+        const csv =
+          linhas
+            .map(
+              linha =>
+                linha
+                  .map(
+                    valor =>
+                      `"${String(valor)
+                        .replace(
+                          /"/g,
+                          '""'
+                        )}"`
+                  )
+                  .join(";")
+            )
+            .join("\n");
+
+
+        const blob =
+          new Blob(
+            [
+              "\uFEFF" +
+              csv
+            ],
+            {
+              type:
+                "text/csv;charset=utf-8;"
+            }
+          );
+
+
+        const url =
+          URL.createObjectURL(
+            blob
+          );
+
+
+        const link =
+          document.createElement(
+            "a"
+          );
+
+
+        link.href =
+          url;
+
+
+        link.download =
+          "financeiro-eduardo-viviane.csv";
+
+
+        link.click();
+
+
+        URL.revokeObjectURL(
+          url
         );
 
-      link.href =
-        URL.createObjectURL(
-          blob
-        );
+      }
+    );
 
-      link.download =
-        "financas-pro.csv";
-
-      document.body.appendChild(
-        link
-      );
-
-      link.click();
-
-      link.remove();
-
-    }
-  );
 
   // =========================================================
   // LIMPAR DADOS
   // =========================================================
 
-  $("clearBtn")?.addEventListener(
-    "click",
-    () => {
+  $("clearBtn")
+    ?.addEventListener(
+      "click",
+      () => {
 
-      if (
-        !confirm(
-          "Tem certeza que deseja apagar todos os dados?"
+        const confirmacao =
+          prompt(
+            "Digite APAGAR para excluir todos os dados deste aparelho:"
+          );
+
+
+        if (
+          confirmacao !==
+          "APAGAR"
         )
-      )
-        return;
+          return;
 
-      state = {
 
-        entries: [],
-        savings: [],
-        goals: [],
-        accounts: [],
-        cards: [],
-        debts: [],
-        investments: [],
-        budgets: [],
+        localStorage.removeItem(
+          KEY
+        );
 
-        // mantém o dízimo ligado
-        titheEnabled: true
 
-      };
+        location.reload();
 
-      save();
+      }
+    );
 
-      render();
 
-    }
-  );
+  // =========================================================
+  // OPEN FINANCE
+  // =========================================================
+
+  $("connectOpenFinanceBtn")
+    ?.addEventListener(
+      "click",
+      () => {
+
+        alert(
+          "🏦 Open Finance\n\n" +
+          "A estrutura está pronta.\n\n" +
+          "A conexão real será ativada quando o Connect Token da Pluggy estiver configurado no backend."
+        );
+
+      }
+    );
+
+
+  $("syncOpenFinanceBtn")
+    ?.addEventListener(
+      "click",
+      () => {
+
+        alert(
+          "🔄 Sincronização\n\n" +
+          "Nenhuma conexão bancária real está ativa ainda."
+        );
+
+      }
+    );
+
+
+  // =========================================================
+  // RENDER GERAL
+  // =========================================================
+
+  function render() {
+
+    renderDashboard();
+
+    renderAllEntries();
+
+    renderSavings();
+
+    renderGoals();
+
+    renderAccounts();
+
+    renderCards();
+
+    renderDebts();
+
+    renderInvestments();
+
+    renderBudgets();
+
+    renderOpenFinance();
+
+  }
+
 
   // =========================================================
   // INICIALIZAÇÃO
   // =========================================================
 
-  if ($("monthFilter")) {
-
-    $("monthFilter").value =
-      today().slice(0, 7);
-
-  }
+  save();
 
   render();
 
-  abrirPagina(
-    "dashboard"
-  );
 
 })();
