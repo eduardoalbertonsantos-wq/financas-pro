@@ -2,21 +2,21 @@
 <html lang="pt-BR">
 
 <head>
-<meta charset="utf-8">
+  <meta charset="utf-8">
 
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1">
 
-<meta
-  name="theme-color"
-  content="#111827">
+  <meta
+    name="theme-color"
+    content="#111827">
 
-<title>Finanças Pro</title>
+  <title>Finanças Pro</title>
 
-<link
-  rel="stylesheet"
-  href="styles.css">
+  <link
+    rel="stylesheet"
+    href="styles.css">
 </head>
 
 
@@ -28,13 +28,11 @@
 <header>
 
   <div>
-
     <h1>Finanças Pro</h1>
 
     <p>
       Seu gerente financeiro pessoal
     </p>
-
   </div>
 
 
@@ -82,8 +80,6 @@
 >
 
 
-  <!-- SALDO -->
-
   <div class="hero">
 
     <div>
@@ -120,7 +116,6 @@
 
   <div class="cards">
 
-
     <article>
 
       <span>
@@ -132,7 +127,6 @@
       </b>
 
     </article>
-
 
 
     <article>
@@ -148,7 +142,6 @@
     </article>
 
 
-
     <article>
 
       <span>
@@ -160,7 +153,6 @@
       </b>
 
     </article>
-
 
 
     <article>
@@ -175,7 +167,6 @@
 
     </article>
 
-
   </div>
 
 
@@ -183,7 +174,6 @@
   <!-- RESUMO -->
 
   <div class="grid">
-
 
     <div class="panel">
 
@@ -228,7 +218,6 @@
 
     </div>
 
-
   </div>
 
 
@@ -242,8 +231,6 @@
     class="panel"
   >
 
-    <!-- O app.js preenche automaticamente -->
-
   </div>
 
 
@@ -252,10 +239,10 @@
 
   <div class="quick-grid">
 
-
     <button
       type="button"
       data-page="contas"
+      onclick="abrirPagina('contas')"
     >
       🏦 Contas
     </button>
@@ -264,6 +251,7 @@
     <button
       type="button"
       data-page="cartoes"
+      onclick="abrirPagina('cartoes')"
     >
       💳 Cartões
     </button>
@@ -272,6 +260,7 @@
     <button
       type="button"
       data-page="dividas"
+      onclick="abrirPagina('dividas')"
     >
       📌 Dívidas
     </button>
@@ -280,10 +269,10 @@
     <button
       type="button"
       data-page="investimentos"
+      onclick="abrirPagina('investimentos')"
     >
       📈 Investimentos
     </button>
-
 
   </div>
 
@@ -292,7 +281,6 @@
   <!-- ÚLTIMOS LANÇAMENTOS -->
 
   <div class="panel">
-
 
     <div class="panel-head">
 
@@ -305,6 +293,7 @@
         class="primary"
         type="button"
         data-page="lancamentos"
+        onclick="abrirPagina('lancamentos')"
       >
         Ver todos
       </button>
@@ -317,17 +306,13 @@
       class="list"
     ></div>
 
-
   </div>
 
 
 
-  <!-- =================================================
-       WHATSAPP
-  ================================================== -->
+  <!-- WHATSAPP -->
 
   <div class="panel">
-
 
     <div class="panel-head">
 
@@ -346,7 +331,6 @@
     </div>
 
 
-
     <div
       style="
         display:flex;
@@ -355,7 +339,6 @@
         margin-top:12px;
       "
     >
-
 
       <button
         type="button"
@@ -373,7 +356,6 @@
       >
         📋 Copiar relatório
       </button>
-
 
     </div>
 
@@ -393,12 +375,9 @@
   class="page"
 >
 
-
   <div class="panel">
 
-
     <div class="panel-head">
-
 
       <h2>
         Lançamentos
@@ -406,7 +385,6 @@
 
 
       <div>
-
 
         <button
           class="primary"
@@ -425,9 +403,7 @@
           + Despesa
         </button>
 
-
       </div>
-
 
     </div>
 
@@ -437,9 +413,7 @@
       class="list"
     ></div>
 
-
   </div>
-
 
 </section>
 
@@ -454,17 +428,14 @@
   class="page"
 >
 
-
   <div class="panel">
 
-
     <h2>
-      Poupança
+      🐷 Poupança
     </h2>
 
 
     <div class="goal">
-
 
       <div>
 
@@ -491,7 +462,6 @@
 
       </div>
 
-
     </div>
 
 
@@ -516,9 +486,7 @@
       + Registrar poupança
     </button>
 
-
   </div>
-
 
 </section>
 
@@ -533,15 +501,12 @@
   class="page"
 >
 
-
   <div class="panel">
-
 
     <div class="panel-head">
 
-
       <h2>
-        Metas financeiras
+        🎯 Metas financeiras
       </h2>
 
 
@@ -553,7 +518,6 @@
         + Nova meta
       </button>
 
-
     </div>
 
 
@@ -562,9 +526,7 @@
       class="goal-list"
     ></div>
 
-
   </div>
-
 
 </section>
 
@@ -579,15 +541,12 @@
   class="page"
 >
 
-
   <div class="panel">
-
 
     <div class="panel-head">
 
-
       <h2>
-        Contas bancárias
+        🏦 Contas bancárias
       </h2>
 
 
@@ -599,7 +558,6 @@
         + Nova conta
       </button>
 
-
     </div>
 
 
@@ -608,9 +566,7 @@
       class="entity-list"
     ></div>
 
-
   </div>
-
 
 </section>
 
@@ -625,15 +581,12 @@
   class="page"
 >
 
-
   <div class="panel">
-
 
     <div class="panel-head">
 
-
       <h2>
-        Cartões
+        💳 Cartões
       </h2>
 
 
@@ -645,7 +598,6 @@
         + Novo cartão
       </button>
 
-
     </div>
 
 
@@ -654,9 +606,7 @@
       class="entity-list"
     ></div>
 
-
   </div>
-
 
 </section>
 
@@ -671,15 +621,12 @@
   class="page"
 >
 
-
   <div class="panel">
-
 
     <div class="panel-head">
 
-
       <h2>
-        Dívidas
+        📌 Dívidas
       </h2>
 
 
@@ -691,7 +638,6 @@
         + Nova dívida
       </button>
 
-
     </div>
 
 
@@ -700,9 +646,7 @@
       class="entity-list"
     ></div>
 
-
   </div>
-
 
 </section>
 
@@ -717,15 +661,12 @@
   class="page"
 >
 
-
   <div class="panel">
-
 
     <div class="panel-head">
 
-
       <h2>
-        Investimentos
+        📈 Investimentos
       </h2>
 
 
@@ -737,7 +678,6 @@
         + Novo investimento
       </button>
 
-
     </div>
 
 
@@ -746,9 +686,7 @@
       class="entity-list"
     ></div>
 
-
   </div>
-
 
 </section>
 
@@ -763,15 +701,12 @@
   class="page"
 >
 
-
   <div class="panel">
-
 
     <div class="panel-head">
 
-
       <h2>
-        Orçamento mensal
+        📊 Orçamento mensal
       </h2>
 
 
@@ -783,7 +718,6 @@
         + Definir orçamento
       </button>
 
-
     </div>
 
 
@@ -792,9 +726,7 @@
       class="entity-list"
     ></div>
 
-
   </div>
-
 
 </section>
 
@@ -809,9 +741,7 @@
   class="page"
 >
 
-
   <div class="panel">
-
 
     <h2>
       Gerenciador financeiro
@@ -824,6 +754,7 @@
       <button
         type="button"
         data-page="lancamentos"
+        onclick="abrirPagina('lancamentos')"
       >
         💳 Lançamentos
       </button>
@@ -832,6 +763,7 @@
       <button
         type="button"
         data-page="poupanca"
+        onclick="abrirPagina('poupanca')"
       >
         🐷 Poupança
       </button>
@@ -840,6 +772,7 @@
       <button
         type="button"
         data-page="metas"
+        onclick="abrirPagina('metas')"
       >
         🎯 Metas
       </button>
@@ -848,6 +781,7 @@
       <button
         type="button"
         data-page="contas"
+        onclick="abrirPagina('contas')"
       >
         🏦 Contas
       </button>
@@ -856,6 +790,7 @@
       <button
         type="button"
         data-page="cartoes"
+        onclick="abrirPagina('cartoes')"
       >
         💳 Cartões
       </button>
@@ -864,6 +799,7 @@
       <button
         type="button"
         data-page="dividas"
+        onclick="abrirPagina('dividas')"
       >
         📌 Dívidas
       </button>
@@ -872,6 +808,7 @@
       <button
         type="button"
         data-page="investimentos"
+        onclick="abrirPagina('investimentos')"
       >
         📈 Investimentos
       </button>
@@ -880,6 +817,7 @@
       <button
         type="button"
         data-page="orcamento"
+        onclick="abrirPagina('orcamento')"
       >
         📊 Orçamento
       </button>
@@ -911,9 +849,7 @@
 
     </div>
 
-
   </div>
-
 
 </section>
 
@@ -928,11 +864,11 @@
 
 <nav>
 
-
   <button
     type="button"
     data-page="dashboard"
     class="selected"
+    onclick="abrirPagina('dashboard')"
   >
 
     ⌂
@@ -944,10 +880,10 @@
   </button>
 
 
-
   <button
     type="button"
     data-page="lancamentos"
+    onclick="abrirPagina('lancamentos')"
   >
 
     ＋
@@ -959,10 +895,10 @@
   </button>
 
 
-
   <button
     type="button"
     data-page="poupanca"
+    onclick="abrirPagina('poupanca')"
   >
 
     🐷
@@ -974,10 +910,10 @@
   </button>
 
 
-
   <button
     type="button"
     data-page="mais"
+    onclick="abrirPagina('mais')"
   >
 
     ☰
@@ -987,7 +923,6 @@
     </span>
 
   </button>
-
 
 </nav>
 
@@ -1005,12 +940,10 @@
   class="modal hidden"
 >
 
-
   <div class="modal-box">
 
 
     <div class="panel-head">
-
 
       <h2 id="modalTitle">
         Novo registro
@@ -1024,13 +957,11 @@
         ×
       </button>
 
-
     </div>
 
 
 
     <form id="form">
-
 
       <input
         type="hidden"
@@ -1049,19 +980,36 @@
       ></div>
 
 
-      <button
-        type="submit"
-        class="primary full"
+      <div
+        style="
+          display:flex;
+          gap:10px;
+          margin-top:18px;
+          justify-content:flex-end;
+        "
       >
-        Salvar
-      </button>
 
+        <button
+          type="button"
+          class="ghost"
+          id="cancelModal"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          type="submit"
+          class="primary"
+        >
+          Salvar
+        </button>
+
+      </div>
 
     </form>
 
-
   </div>
-
 
 </div>
 
@@ -1069,16 +1017,95 @@
 
 <!-- =====================================================
      JAVASCRIPT
-     
-     O ?v=20260813 força o navegador a carregar
-     a versão nova do código.
 ===================================================== -->
 
-<script src="app.js?v=20260813-dizimo"></script>
+<script src="app.js"></script>
 
-<script src="whatsapp.js?v=20260813"></script>
+
+<!-- =====================================================
+     GARANTIA DO MENU INFERIOR
+===================================================== -->
+
+<script>
+
+(function () {
+
+  function navegarPagina(page) {
+
+    if (
+      typeof window.abrirPagina === "function"
+    ) {
+
+      window.abrirPagina(page);
+
+      return;
+
+    }
+
+
+    document
+      .querySelectorAll(".page")
+      .forEach(function (pagina) {
+
+        pagina.classList.remove("active");
+
+      });
+
+
+    var destino =
+      document.getElementById(page);
+
+
+    if (destino) {
+
+      destino.classList.add("active");
+
+    }
+
+
+    document
+      .querySelectorAll("nav button[data-page]")
+      .forEach(function (botao) {
+
+        botao.classList.toggle(
+          "selected",
+          botao.getAttribute("data-page") === page
+        );
+
+      });
+
+  }
+
+
+  window.navegarPagina =
+    navegarPagina;
+
+
+  document
+    .querySelectorAll("nav button[data-page]")
+    .forEach(function (botao) {
+
+      botao.addEventListener(
+        "click",
+        function (event) {
+
+          event.preventDefault();
+          event.stopPropagation();
+
+          navegarPagina(
+            botao.getAttribute("data-page")
+          );
+
+        }
+      );
+
+    });
+
+
+})();
+
+</script>
 
 
 </body>
-
 </html>
