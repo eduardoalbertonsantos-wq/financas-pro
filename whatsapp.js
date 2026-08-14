@@ -1,71 +1,134 @@
 // ==========================================
-// FINANÇAS PRO - RELATÓRIO WHATSAPP
+// FINANÇAS PRO - WHATSAPP
 // ==========================================
 
-function moedaWhatsApp(valor) {
-  const numero = Number(valor) || 0;
+(function () {
 
-  return numero.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL"
-  });
-}
+  function texto(id, fallback) {
 
-function textoElemento(id, padrao = "R$ 0,00") {
-  const elemento = document.getElementById(id);
+    const elemento =
+      document.getElementById(id);
 
-  if (!elemento) return padrao;
+    if (!elemento)
+      return fallback || "";
 
-  return elemento.textContent.trim() || padrao;
-}
+    return (
+      elemento.textContent ||
+      fallback ||
+      ""
+    ).trim();
 
-function gerarRelatorioWhatsApp() {
-
-  const saldo = textoElemento("saldo");
-  const entradas = textoElemento("entradas");
-  const despesas = textoElemento("despesas");
-  const poupado = textoElemento("poupado");
-
-  const filtroMes = document.getElementById("monthFilter");
-
-  let mes = "mês atual";
-
-  if (filtroMes && filtroMes.value) {
-    const partes = filtroMes.value.split("-");
-
-    if (partes.length === 2) {
-      const data = new Date(
-        Number(partes[0]),
-        Number(partes[1]) - 1,
-        1
-      );
-
-      mes = data.toLocaleDateString("pt-BR", {
-        month: "long",
-        year: "numeric"
-      });
-    }
   }
 
-  const mensagem =
-`💰 *FINANÇAS PRO*
-📊 *Relatório financeiro*
+
+  function moeda(valor) {
+
+    return Number(valor || 0)
+      .toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+
+  }
+
+
+  function obterEntradas() {
+
+    const textoEntradas =
+      texto(
+        "entradas",
+        "R$ 0,00"
+      );
+
+    return Number(
+      textoEntradas
+        .replace(/[^0-9,-]/g, "")
+        .replace(/\./g, "")
+        .replace(",", ".")
+    ) || 0;
+
+  }
+
+
+  function gerarRelatorioWhatsApp() {
+
+    const entradas =
+      obterEntradas();
+
+    const dizimo =
+      entradas * 0.10;
+
+    const aposDizimo =
+      entradas - dizimo;
+
+
+    const filtro =
+      document.getElementById(
+        "monthFilter"
+      );
+
+    let mes =
+      "mês atual";
+
+
+    if (
+      filtro &&
+      filtro.value
+    ) {
+
+      const partes =
+        filtro.value.split("-");
+
+      if (partes.length === 2) {
+
+        const data =
+          new Date(
+            Number(partes[0]),
+            Number(partes[1]) - 1,
+            1
+          );
+
+        mes =
+          data.toLocaleDateString(
+            "pt-BR",
+            {
+              month: "long",
+              year: "numeric"
+            }
+          );
+
+      }
+
+    }
+
+
+    return `💰 *FINANÇAS PRO*
+📊 *RELATÓRIO FINANCEIRO*
 
 📅 *Período:* ${mes}
 
 ━━━━━━━━━━━━━━━━━━
 
-💵 *Saldo disponível*
-${saldo}
+💵 *SALDO DISPONÍVEL*
+${texto("saldo", "R$ 0,00")}
 
-📥 *Entradas*
-${entradas}
+📥 *ENTRADAS*
+${texto("entradas", "R$ 0,00")}
 
-📤 *Despesas*
-${despesas}
+📤 *DESPESAS*
+${texto("despesas", "R$ 0,00")}
 
-🐷 *Poupado*
-${poupado}
+🙏 *DÍZIMO — 10%*
+${moeda(dizimo)}
+
+💵 *ENTRADA APÓS DÍZIMO*
+${moeda(aposDizimo)}
+
+🐷 *POUPADO*
+${texto("poupado", "R$ 0,00")}
+
+📊 *COMPROMETIDO*
+${texto("comprometido", "0%")}
 
 ━━━━━━━━━━━━━━━━━━
 
@@ -73,57 +136,63 @@ ${poupado}
 
 _Controle suas finanças. Planeje seu futuro._`;
 
-  return mensagem;
-}
+  }
 
 
-// ==========================================
-// ABRIR WHATSAPP
-// ==========================================
+  function enviarRelatorioWhatsApp() {
 
-function enviarRelatorioWhatsApp() {
+    const mensagem =
+      gerarRelatorioWhatsApp();
 
-  const mensagem = gerarRelatorioWhatsApp();
+    const url =
+      "https://wa.me/?text=" +
+      encodeURIComponent(mensagem);
 
-  const url =
-    "https://wa.me/?text=" +
-    encodeURIComponent(mensagem);
-
-  window.open(url, "_blank");
-}
-
-
-// ==========================================
-// COPIAR RELATÓRIO
-// ==========================================
-
-async function copiarRelatorioWhatsApp() {
-
-  const mensagem = gerarRelatorioWhatsApp();
-
-  try {
-
-    await navigator.clipboard.writeText(mensagem);
-
-    alert("✅ Relatório copiado!\n\nAgora é só colar no WhatsApp.");
-
-  } catch (erro) {
-
-    prompt(
-      "Copie o relatório abaixo:",
-      mensagem
-    );
+    window.location.href =
+      url;
 
   }
-}
 
 
-// ==========================================
-// DISPONIBILIZAR FUNÇÕES PARA O SISTEMA
-// ==========================================
+  async function copiarRelatorioWhatsApp() {
 
-window.FinancasWhatsApp = {
-  gerar: gerarRelatorioWhatsApp,
-  enviar: enviarRelatorioWhatsApp,
-  copiar: copiarRelatorioWhatsApp
-};
+    const mensagem =
+      gerarRelatorioWhatsApp();
+
+    try {
+
+      await navigator
+        .clipboard
+        .writeText(mensagem);
+
+      alert(
+        "✅ Relatório copiado!\n\n" +
+        "Agora é só colar no WhatsApp."
+      );
+
+    } catch (erro) {
+
+      window.prompt(
+        "Copie o relatório abaixo:",
+        mensagem
+      );
+
+    }
+
+  }
+
+
+  window.FinancasWhatsApp = {
+
+    gerar:
+      gerarRelatorioWhatsApp,
+
+    enviar:
+      enviarRelatorioWhatsApp,
+
+    copiar:
+      copiarRelatorioWhatsApp
+
+  };
+
+})();
