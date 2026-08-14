@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>Finanças Pro</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;color:#111827}.app{max-width:1100px;margin:auto;padding-bottom:90px}
+header{background:#111827;color:#fff;padding:22px;display:flex;justify-content:space-between;align-items:center}header h1{margin:0}header p{margin:5px 0;color:#cbd5e1}
+.hero{margin:16px;background:#111827;color:#fff;border-radius:18px;padding:22px;display:flex;justify-content:space-between;gap:15px;align-items:center}.hero strong{font-size:30px;display:block;margin-top:5px}.hero span,.card span,.goal span{color:#94a3b8;font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px}.card,.panel{background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 10px #0000000b}.card b{font-size:20px;display:block;margin-top:7px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px}
+button{border:0;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:pointer}.primary{background:#111827;color:#fff}.danger{background:#dc2626;color:#fff}.light{background:#f1f5f9}.bar{height:14px;background:#e5e7eb;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:#16a34a}.item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e5e7eb}.in{color:#16a34a}.out{color:#dc2626}.page{display:none}.page.active{display:block}.menu{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.goal{display:flex;justify-content:space-between;margin:15px 0}.goal strong{display:block;font-size:21px;margin-top:5px}
+.modal{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:15px}.box{background:#fff;border-radius:18px;padding:20px;width:min(500px,100%);max-height:90vh;overflow:auto}form{display:grid;gap:12px}input,select,textarea{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:9px;margin-top:5px}textarea{min-height:70px}.hidden{display:none}nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:center}nav button{flex:1;max-width:180px;background:#fff;color:#64748b}nav .sel{color:#111827}
+@media(max-width:700px){.cards{grid-template-columns:1fr 1fr;margin:10px}.grid{grid-template-columns:1fr;margin:10px}.hero{margin:10px}.menu{grid-template-columns:1fr 1fr}header{padding:16px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div><h1>Finanças Pro</h1><p>Seu gerente financeiro pessoal</p></div><button class="light" onclick="exportar()">Exportar CSV</button></header>
+
+<section id="dashboard" class="page active">
+<div class="hero"><div><span>Saldo disponível</span><strong id="saldo">R$ 0,00</strong></div><div><span>Mês</span><input id="mes" type="month" onchange="render()"></div></div>
+<div class="cards">
+<div class="card"><span>Entradas</span><b id="entradas">R$ 0,00</b></div>
+<div class="card"><span>Despesas</span><b id="despesas">R$ 0,00</b></div>
+<div class="card"><span>Poupado</span><b id="poupado">R$ 0,00</b></div>
+<div class="card"><span>Comprometido</span><b id="comprometido">0%</b></div>
+</div>
+<div class="grid"><div class="panel"><h2>Meta de poupança</h2><div class="bar"><i id="barra"></i></div><p id="metaTxt">R$ 0 de R$ 1.200</p></div>
+<div class="panel"><h2>Análise financeira</h2><p id="analise">Registre suas primeiras movimentações.</p></div></div>
+<div class="panel"><h2>Últimos lançamentos</h2><div id="recent"></div></div>
+</section>
+
+<section id="lancamentos" class="page"><div class="panel"><h2>Lançamentos</h2><button class="primary" onclick="abrir('entrada')">+ Entrada</button> <button class="danger" onclick="abrir('saida')">+ Despesa</button><div id="lista" style="margin-top:15px"></div></div></section>
+
+<section id="poupanca" class="page"><div class="panel"><h2>Poupança</h2><div class="goal"><div><span>Meta mensal</span><strong>R$ 1.200,00</strong></div><div><span>Acumulado</span><strong id="totalPoup">R$ 0,00</strong></div></div><div class="bar"><i id="barraPoup"></i></div><p id="pctPoup">0% da meta atingida</p><button class="primary" onclick="abrir('poupanca')">+ Registrar poupança</button></div></section>
+
+<section id="metas" class="page"><div class="panel"><h2>Metas financeiras</h2><p>Reserva de emergência, carro, viagem, imóvel e outros.</p><button class="primary" onclick="novaMeta()">+ Nova meta</button><div id="metas"></div></div></section>
+
+<section id="mais" class="page"><div class="panel"><h2>Mais</h2><div class="menu"><button class="light" onclick="ir('lancamentos')">💳 Lançamentos</button><button class="light" onclick="ir('poupanca')">🐷 Poupança</button><button class="light" onclick="ir('metas')">🎯 Metas</button><button class="light" onclick="alert('Orçamento: use suas categorias e acompanhe pelo dashboard.')">📊 Orçamento</button><button class="light" onclick="alert('Controle de dívidas será integrado na próxima etapa.')">📌 Dívidas</button><button class="light" onclick="limpar()">🗑️ Limpar dados</button></div></div></section>
+
+<nav><button class="sel" onclick="ir('dashboard')">⌂<small>Início</small></button><button onclick="ir('lancamentos')">＋<small>Lançamentos</small></button><button onclick="ir('poupanca')">🐷<small>Poupança</small></button><button onclick="ir('mais')">☰<small>Mais</small></button></nav>
+</div>
+
+<div id="modal" class="modal hidden"><div class="box"><h2 id="titulo">Novo lançamento</h2><form onsubmit="salvar(event)">
+<input type="hidden" id="tipo"><label>Data<input id="data" type="date" required></label>
+<label>Descrição<input id="desc" required placeholder="Ex.: Salário"></label>
+<label>Categoria<select id="cat"><option>Salário</option><option>Renda extra</option><option>Alimentação</option><option>Moradia</option><option>Transporte</option><option>Saúde</option><option>Academia</option><option>Lazer</option><option>Compras</option><option>Contas</option><option>Dívidas</option><option>Outros</option></select></label>
+<label>Valor<input id="valor" type="number" min=".01" step=".01" required></label><label>Observação<textarea id="obs"></textarea></label>
+<button class="primary">Salvar</button><button type="button" class="light" onclick="fechar()">Cancelar</button></form></div></div>
+
+<script>
+const KEY='financas_pro_v1';let dados=JSON.parse(localStorage.getItem(KEY)||'{"mov":[], "poup":[], "metas":[]}');
+const money=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const hoje=()=>new Date().toISOString().slice(0,10);
+document.getElementById('mes').value=new Date().toISOString().slice(0,7);
+function save(){localStorage.setItem(KEY,JSON.stringify(dados))}
+function ir(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('sel'));render()}
+function abrir(tipo){document.getElementById('tipo').value=tipo;document.getElementById('titulo').textContent=tipo==='entrada'?'Nova entrada':tipo==='saida'?'Nova despesa':'Registrar poupança';document.getElementById('data').value=hoje();document.getElementById('modal').classList.remove('hidden')}
+function fechar(){document.getElementById('modal').classList.add('hidden')}
+function salvar(e){e.preventDefault();let tipo=document.getElementById('tipo').value,v=Number(document.getElementById('valor').value);if(tipo==='poupanca')dados.poup.push({data:data.value,valor:v,desc:desc.value,obs:obs.value});else dados.mov.push({tipo,data:data.value,desc:desc.value,cat:cat.value,valor:v,obs:obs.value});save();e.target.reset();fechar();render()}
+function render(){let mes=document.getElementById('mes').value;let mov=dados.mov.filter(x=>!mes||x.data.slice(0,7)===mes),ent=mov.filter(x=>x.tipo==='entrada').reduce((a,x)=>a+x.valor,0),sai=mov.filter(x=>x.tipo==='saida').reduce((a,x)=>a+x.valor,0),p=dados.poup.filter(x=>x.data.slice(0,7)===mes).reduce((a,x)=>a+x.valor,0),saldo=ent-sai;document.getElementById('saldo').textContent=money(saldo);document.getElementById('entradas').textContent=money(ent);document.getElementById('despesas').textContent=money(sai);document.getElementById('poupado').textContent=money(p);document.getElementById('comprometido').textContent=(ent?((sai/ent)*100):0).toFixed(1)+'%';let pct=Math.min(100,p/1200*100);document.getElementById('barra').style.width=pct+'%';document.getElementById('metaTxt').textContent=money(p)+' de R$ 1.200,00';document.getElementById('totalPoup').textContent=money(dados.poup.reduce((a,x)=>a+x.valor,0));document.getElementById('barraPoup').style.width=pct+'%';document.getElementById('pctPoup').textContent=pct.toFixed(1)+'% da meta atingida';document.getElementById('analise').textContent=ent===0?'Registre suas primeiras movimentações.':sai>ent?'Atenção: as despesas superaram as entradas.':`Você está com ${money(ent-sai)} de saldo no período.`;let html=mov.slice().reverse().map((x,i)=>`<div class="item"><span>${x.desc}<br><small>${x.cat} • ${x.data}</small></span><b class="${x.tipo==='entrada'?'in':'out'}">${x.tipo==='entrada'?'+':'-'} ${money(x.valor)}</b></div>`).join('')||'<p>Nenhum lançamento neste mês.</p>';document.getElementById('lista').innerHTML=html;document.getElementById('recent').innerHTML=html.slice(0,5000)}
+function novaMeta(){let nome=prompt('Nome da meta:');if(!nome)return;let alvo=Number(prompt('Valor objetivo:'));if(!alvo)return;dados.metas.push({nome,alvo,acum:0});save();renderMetas()}
+function renderMetas(){document.getElementById('metas').innerHTML=dados.metas.map((m,i)=>`<div class="panel" style="margin-top:10px"><b>${m.nome}</b><p>${money(m.acum)} de ${money(m.alvo)}</p><div class="bar"><i style="width:${Math.min(100,m.acum/m.alvo*100)}%"></i></div></div>`).join('')||'<p>Nenhuma meta cadastrada.</p>'}
+function limpar(){if(confirm('Apagar todos os dados deste navegador?')){dados={mov:[],poup:[],metas:[]};save();render();renderMetas()}}
+function exportar(){let rows=[['Tipo','Data','Descrição','Categoria','Valor'],...dados.mov.map(x=>[x.tipo,x.data,x.desc,x.cat,x.valor]),...dados.poup.map(x=>['poupanca',x.data,x.desc,'Poupança',x.valor])];let csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(';')).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='financas-pro.csv';a.click()}
+render();renderMetas();
+</script>
+</body></html>
