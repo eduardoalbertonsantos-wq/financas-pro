@@ -9,76 +9,33 @@
 </head>
 <body>
 <div class="app">
-<header>
-  <div><h1>Finanças Pro</h1><p>Seu gerente financeiro pessoal</p></div>
-  <button id="exportBtn" class="ghost">Exportar CSV</button>
-</header>
+<header><div><h1>Finanças Pro</h1><p>Seu gerente financeiro pessoal</p></div><button id="exportBtn" class="ghost">Exportar CSV</button></header>
 <main>
 <section id="dashboard" class="page active">
-  <div class="hero">
-    <div><span>Saldo disponível</span><strong id="saldo">R$ 0,00</strong></div>
-    <div><label>Mês</label><input id="monthFilter" type="month"></div>
-  </div>
-  <div class="cards">
-    <article><span>Entradas</span><b id="entradas">R$ 0,00</b></article>
-    <article><span>Despesas</span><b id="despesas">R$ 0,00</b></article>
-    <article><span>Poupado</span><b id="poupado">R$ 0,00</b></article>
-    <article><span>Comprometido</span><b id="comprometido">0%</b></article>
-  </div>
-  <div class="grid">
-    <div class="panel"><h2>Resumo do mês</h2><div class="bar"><i id="saveBar"></i></div><p id="saveText">Meta de poupança: R$ 1.200,00</p><div id="insight" class="insight"></div></div>
-    <div class="panel"><h2>Por categoria</h2><div id="categories"></div></div>
-  </div>
-  <div class="panel"><div class="panel-head"><h2>Últimos lançamentos</h2><button class="primary" data-page="lancamentos">Ver todos</button></div><div id="recent" class="list"></div></div>
+<div class="hero"><div><span>Saldo disponível</span><strong id="saldo">R$ 0,00</strong></div><div><label>Mês</label><input id="monthFilter" type="month"></div></div>
+<div class="cards"><article><span>Entradas</span><b id="entradas">R$ 0,00</b></article><article><span>Despesas</span><b id="despesas">R$ 0,00</b></article><article><span>Poupado</span><b id="poupado">R$ 0,00</b></article><article><span>Comprometido</span><b id="comprometido">0%</b></article></div>
+<div class="grid"><div class="panel"><h2>Resumo do mês</h2><div class="bar"><i id="saveBar"></i></div><p id="saveText">Meta de poupança: R$ 1.200,00</p><div id="insight" class="insight"></div></div><div class="panel"><h2>Por categoria</h2><div id="categories"></div></div></div>
+<div class="quick-grid"><button data-page="contas">🏦 Contas</button><button data-page="cartoes">💳 Cartões</button><button data-page="dividas">📌 Dívidas</button><button data-page="investimentos">📈 Investimentos</button></div>
+<div class="panel"><div class="panel-head"><h2>Últimos lançamentos</h2><button class="primary" data-page="lancamentos">Ver todos</button></div><div id="recent" class="list"></div></div>
 </section>
 
-<section id="lancamentos" class="page">
-  <div class="panel"><div class="panel-head"><h2>Lançamentos</h2><div><button class="primary" id="newEntry">+ Entrada</button><button class="danger" id="newExpense">+ Despesa</button></div></div><div id="allList" class="list"></div></div>
-</section>
+<section id="lancamentos" class="page"><div class="panel"><div class="panel-head"><h2>Lançamentos</h2><div><button class="primary" id="newEntry">+ Entrada</button><button class="danger" id="newExpense">+ Despesa</button></div></div><div id="allList" class="list"></div></div></section>
 
-<section id="poupanca" class="page">
-  <div class="panel"><h2>Poupança</h2>
-    <div class="goal"><div><span>Meta mensal</span><strong id="goalValue">R$ 1.200,00</strong></div><div><span>Acumulado</span><strong id="savingTotal">R$ 0,00</strong></div></div>
-    <div class="bar big"><i id="goalBar"></i></div><p id="goalPercent">0% da meta atingida</p>
-    <button class="primary" id="addSaving">+ Registrar poupança</button>
-  </div>
-</section>
+<section id="poupanca" class="page"><div class="panel"><h2>Poupança</h2><div class="goal"><div><span>Meta mensal</span><strong>R$ 1.200,00</strong></div><div><span>Acumulado</span><strong id="savingTotal">R$ 0,00</strong></div></div><div class="bar big"><i id="goalBar"></i></div><p id="goalPercent">0% da meta atingida</p><button class="primary" id="addSaving">+ Registrar poupança</button></div></section>
 
-<section id="metas" class="page">
-  <div class="panel"><div class="panel-head"><h2>Metas financeiras</h2><button class="primary" id="addGoal">+ Nova meta</button></div><div id="goals" class="goal-list"></div></div>
-</section>
+<section id="metas" class="page"><div class="panel"><div class="panel-head"><h2>Metas financeiras</h2><button class="primary" id="addGoal">+ Nova meta</button></div><div id="goals" class="goal-list"></div></div></section>
+<section id="contas" class="page"><div class="panel"><div class="panel-head"><h2>Contas bancárias</h2><button class="primary" id="addAccount">+ Nova conta</button></div><div id="accounts" class="entity-list"></div></div></section>
+<section id="cartoes" class="page"><div class="panel"><div class="panel-head"><h2>Cartões</h2><button class="primary" id="addCard">+ Novo cartão</button></div><div id="cardsList" class="entity-list"></div></div></section>
+<section id="dividas" class="page"><div class="panel"><div class="panel-head"><h2>Dívidas</h2><button class="primary" id="addDebt">+ Nova dívida</button></div><div id="debtsList" class="entity-list"></div></div></section>
+<section id="investimentos" class="page"><div class="panel"><div class="panel-head"><h2>Investimentos</h2><button class="primary" id="addInvestment">+ Novo investimento</button></div><div id="investmentsList" class="entity-list"></div></div></section>
+<section id="orcamento" class="page"><div class="panel"><div class="panel-head"><h2>Orçamento mensal</h2><button class="primary" id="setBudget">+ Definir orçamento</button></div><div id="budgetList" class="entity-list"></div></div></section>
 
-<section id="mais" class="page">
-  <div class="panel"><h2>Gerenciador financeiro</h2>
-    <div class="menu-grid">
-      <button data-page="lancamentos">💳 Lançamentos</button><button data-page="poupanca">🐷 Poupança</button><button data-page="metas">🎯 Metas</button>
-      <button id="budgetBtn">📊 Orçamento</button><button id="debtBtn">📌 Dívidas</button><button id="clearBtn">🗑️ Limpar dados</button>
-    </div>
-  </div>
-</section>
+<section id="mais" class="page"><div class="panel"><h2>Gerenciador financeiro</h2><div class="menu-grid"><button data-page="lancamentos">💳 Lançamentos</button><button data-page="poupanca">🐷 Poupança</button><button data-page="metas">🎯 Metas</button><button data-page="contas">🏦 Contas</button><button data-page="cartoes">💳 Cartões</button><button data-page="dividas">📌 Dívidas</button><button data-page="investimentos">📈 Investimentos</button><button data-page="orcamento">📊 Orçamento</button><button id="clearBtn">🗑️ Limpar dados</button></div></div></section>
 </main>
-
-<nav>
-<button data-page="dashboard" class="selected">⌂<span>Início</span></button>
-<button data-page="lancamentos">＋<span>Lançamentos</span></button>
-<button data-page="poupanca">🐷<span>Poupança</span></button>
-<button data-page="mais">☰<span>Mais</span></button>
-</nav>
+<nav><button data-page="dashboard" class="selected">⌂<span>Início</span></button><button data-page="lancamentos">＋<span>Lançamentos</span></button><button data-page="poupanca">🐷<span>Poupança</span></button><button data-page="mais">☰<span>Mais</span></button></nav>
 </div>
 
-<div id="modal" class="modal hidden"><div class="modal-box">
-<div class="panel-head"><h2 id="modalTitle">Novo lançamento</h2><button id="closeModal">×</button></div>
-<form id="form">
-<input type="hidden" id="type">
-<label>Data<input required type="date" id="date"></label>
-<label>Descrição<input required id="desc" placeholder="Ex.: Salário"></label>
-<label>Categoria<select id="category"></select></label>
-<label>Valor<input required type="number" min="0.01" step="0.01" id="amount"></label>
-<label>Forma de pagamento/recebimento<input id="method" placeholder="Pix, débito, crédito..."></label>
-<label>Observação<textarea id="note"></textarea></label>
-<button class="primary full">Salvar</button>
-</form>
-</div></div>
+<div id="modal" class="modal hidden"><div class="modal-box"><div class="panel-head"><h2 id="modalTitle">Novo registro</h2><button id="closeModal">×</button></div><form id="form"><input type="hidden" id="formKind"><input type="hidden" id="type"><div id="dynamicFields"></div><button class="primary full">Salvar</button></form></div></div>
 <script src="app.js"></script>
 </body>
 </html>
