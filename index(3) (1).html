@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f172a">
+<title>Finanças Pro</title>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--primary:#2563eb;--green:#16a34a;--red:#dc2626;--line:#e2e8f0;--shadow:0 8px 25px rgba(15,23,42,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{max-width:1250px;margin:auto;padding-bottom:90px}
+header{background:#0f172a;color:#fff;padding:22px 28px;display:flex;justify-content:space-between;align-items:center;gap:20px;border-radius:0 0 18px 18px}
+header h1{margin:0;font-size:28px}header p{margin:5px 0 0;color:#cbd5e1}.ghost{background:#1e293b;color:#fff;border:1px solid #475569;padding:10px 15px;border-radius:10px}
+main{padding:22px}.hero{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:18px}.hero>div{background:var(--card);padding:18px 20px;border-radius:16px;box-shadow:var(--shadow);flex:1}.hero strong{display:block;font-size:30px;margin-top:5px}.hero label{display:block;color:var(--muted);margin-bottom:6px}.hero input{padding:10px;border:1px solid var(--line);border-radius:9px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.card{background:var(--card);padding:18px;border-radius:16px;box-shadow:var(--shadow)}.card span{color:var(--muted);font-size:14px}.card b{display:block;font-size:22px;margin-top:7px}.green{color:var(--green)}.red{color:var(--red)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.panel{background:var(--card);border-radius:16px;padding:20px;box-shadow:var(--shadow);margin-top:18px}.grid .panel{margin-top:0}.panel h2{margin:0 0 15px;font-size:19px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.bar{height:12px;background:#e2e8f0;border-radius:20px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--green);transition:.3s}.category{margin:13px 0}.category-top{display:flex;justify-content:space-between;font-size:14px}.list{display:grid;gap:9px}.item{display:flex;justify-content:space-between;gap:15px;padding:13px;border:1px solid var(--line);border-radius:11px}.item small{display:block;color:var(--muted);margin-top:3px}.primary{background:var(--primary);color:#fff;padding:10px 14px;border-radius:9px}.danger{background:var(--red);color:#fff;padding:10px 14px;border-radius:9px;margin-left:6px}.full{width:100%;margin-top:10px}.empty{text-align:center;color:var(--muted);padding:25px}.goal{display:grid;grid-template-columns:1fr 1fr;gap:15px}.goal div{padding:15px;background:#f8fafc;border-radius:12px}.goal span{display:block;color:var(--muted);font-size:13px}.goal strong{display:block;margin-top:5px;font-size:21px}.big{height:18px;margin-top:18px}.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.menu-grid button{padding:16px;border:1px solid var(--line);background:#f8fafc;border-radius:12px;text-align:left}.page{display:none}.page.active{display:block}
+nav{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;border-radius:18px;padding:8px;display:flex;gap:5px;box-shadow:0 10px 35px rgba(0,0,0,.25);z-index:10}nav button{background:transparent;color:#cbd5e1;padding:9px 13px;border-radius:12px}nav button.selected{background:#2563eb;color:#fff}nav span{display:block;font-size:11px;margin-top:2px}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.65);display:flex;align-items:center;justify-content:center;padding:18px;z-index:20}.hidden{display:none}.modal-box{background:#fff;width:min(520px,100%);border-radius:18px;padding:20px;max-height:90vh;overflow:auto}.modal-box form{display:grid;gap:12px}.modal-box label{font-size:14px;color:#475569}.modal-box input,.modal-box select,.modal-box textarea{display:block;width:100%;margin-top:5px;border:1px solid var(--line);border-radius:9px;padding:10px}.modal-box textarea{min-height:80px;resize:vertical}.close{background:none;font-size:26px}
+@media(max-width:800px){.app{padding-bottom:100px}header{padding:18px;border-radius:0}header h1{font-size:23px}.ghost{display:none}main{padding:14px}.hero{display:grid;grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.menu-grid{grid-template-columns:1fr 1fr}.item{align-items:center}nav{width:calc(100% - 20px);justify-content:space-around}nav button{flex:1;padding:8px 4px}.hero strong{font-size:25px}}
+@media(max-width:430px){.cards{grid-template-columns:1fr 1fr}.menu-grid{grid-template-columns:1fr}.panel{padding:15px}.item{font-size:14px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div><h1>Finanças Pro</h1><p>Seu gerente financeiro pessoal</p></div><button id="exportBtn" class="ghost">Exportar CSV</button></header>
+<main>
+<section id="dashboard" class="page active">
+<div class="hero"><div><span>Saldo disponível</span><strong id="saldo">R$ 0,00</strong></div><div><label>Mês selecionado</label><input id="monthFilter" type="month"></div></div>
+<div class="cards">
+<div class="card"><span>Entradas</span><b id="entradas">R$ 0,00</b></div>
+<div class="card"><span>Despesas</span><b id="despesas">R$ 0,00</b></div>
+<div class="card"><span>Poupado</span><b id="poupado">R$ 0,00</b></div>
+<div class="card"><span>Comprometido</span><b id="comprometido">0%</b></div>
+</div>
+<div class="grid">
+<div class="panel"><h2>Resumo do mês</h2><div class="bar"><i id="saveBar"></i></div><p id="saveText">Meta de poupança: R$ 1.200,00</p><p id="insight"></p></div>
+<div class="panel"><h2>Por categoria</h2><div id="categories"></div></div>
+</div>
+<div class="panel"><div class="panel-head"><h2>Últimos lançamentos</h2><button class="primary" data-page="lancamentos">Ver todos</button></div><div id="recent" class="list"></div></div>
+</section>
+
+<section id="lancamentos" class="page"><div class="panel"><div class="panel-head"><h2>Lançamentos</h2><div><button class="primary" id="newEntry">+ Entrada</button><button class="danger" id="newExpense">+ Despesa</button></div></div><div id="allList" class="list"></div></div></section>
+
+<section id="poupanca" class="page"><div class="panel"><h2>Poupança</h2><div class="goal"><div><span>Meta mensal</span><strong>R$ 1.200,00</strong></div><div><span>Acumulado</span><strong id="savingTotal">R$ 0,00</strong></div></div><div class="bar big"><i id="goalBar"></i></div><p id="goalPercent">0% da meta atingida</p><button class="primary" id="addSaving">+ Registrar poupança</button></div></section>
+
+<section id="metas" class="page"><div class="panel"><div class="panel-head"><h2>Metas financeiras</h2><button class="primary" id="addGoal">+ Nova meta</button></div><div id="goals"></div></div></section>
+
+<section id="mais" class="page"><div class="panel"><h2>Gerenciador financeiro</h2><div class="menu-grid"><button data-page="lancamentos">💳 Lançamentos</button><button data-page="poupanca">🐷 Poupança</button><button data-page="metas">🎯 Metas</button><button id="budgetBtn">📊 Orçamento</button><button id="debtBtn">📌 Dívidas</button><button id="clearBtn">🗑️ Limpar dados</button></div></div></section>
+</main>
+<nav><button data-page="dashboard" class="selected">⌂<span>Início</span></button><button data-page="lancamentos">＋<span>Lançamentos</span></button><button data-page="poupanca">🐷<span>Poupança</span></button><button data-page="mais">☰<span>Mais</span></button></nav>
+</div>
+
+<div id="modal" class="modal hidden"><div class="modal-box"><div class="panel-head"><h2 id="modalTitle">Novo lançamento</h2><button id="closeModal" class="close">×</button></div><form id="form"><input type="hidden" id="type"><label>Data<input required type="date" id="date"></label><label>Descrição<input required id="desc" placeholder="Ex.: Salário"></label><label>Categoria<select id="category"></select></label><label>Valor<input required type="number" min="0.01" step="0.01" id="amount"></label><label>Forma de pagamento/recebimento<input id="method" placeholder="Pix, débito, crédito..."></label><label>Observação<textarea id="note"></textarea></label><button class="primary full">Salvar</button></form></div></div>
+
+<script>
+const KEY="financasPro_v1", GOAL=1200;
+const cats=["Salário","Moradia","Alimentação","Transporte","Saúde","Academia","Cartão","Lazer","Investimentos","Contas","Outros"];
+let data=JSON.parse(localStorage.getItem(KEY)||'{"entries":[],"savings":[],"goals":[]}');
+const money=v=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(v||0);
+const today=()=>new Date().toISOString().slice(0,10);
+const month=()=>document.getElementById("monthFilter").value||new Date().toISOString().slice(0,7);
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function entries(){return data.entries.filter(x=>x.date.startsWith(month()))}
+function render(){
+ const e=entries(), inc=e.filter(x=>x.type==="entrada").reduce((s,x)=>s+x.amount,0), out=e.filter(x=>x.type==="despesa").reduce((s,x)=>s+x.amount,0);
+ const sv=data.savings.filter(x=>x.date.startsWith(month())).reduce((s,x)=>s+x.amount,0);
+ document.getElementById("entradas").textContent=money(inc);document.getElementById("despesas").textContent=money(out);document.getElementById("poupado").textContent=money(sv);document.getElementById("saldo").textContent=money(inc-out-sv);
+ const pct=inc?Math.min(100,out/inc*100):0;document.getElementById("comprometido").textContent=pct.toFixed(0)+"%";
+ const sp=Math.min(100,sv/GOAL*100);document.getElementById("saveBar").style.width=sp+"%";document.getElementById("saveText").textContent=`Meta de poupança: ${money(GOAL)} • ${sp.toFixed(0)}% atingida`;
+ document.getElementById("insight").textContent=inc?`Você gastou ${money(out)} e poupou ${money(sv)} neste mês.`:"Adicione seu primeiro lançamento para começar.";
+ const map={};e.filter(x=>x.type==="despesa").forEach(x=>map[x.category]=(map[x.category]||0)+x.amount);
+ document.getElementById("categories").innerHTML=Object.entries(map).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="category"><div class="category-top"><span>${k}</span><b>${money(v)}</b></div><div class="bar"><i style="width:${out?Math.min(100,v/out*100):0}%"></i></div></div>`).join("")||'<div class="empty">Nenhuma despesa no mês.</div>';
+ const sorted=[...e].sort((a,b)=>b.date.localeCompare(a.date));list("recent",sorted.slice(0,5));list("allList",sorted);
+ document.getElementById("savingTotal").textContent=money(sv);document.getElementById("goalBar").style.width=sp+"%";document.getElementById("goalPercent").textContent=sp.toFixed(0)+"% da meta atingida";
+ document.getElementById("goals").innerHTML=data.goals.map((g,i)=>`<div class="item"><div><b>${g.name}</b><small>Meta: ${money(g.target)} • Acumulado: ${money(g.saved)}</small></div><button class="danger" onclick="removeGoal(${i})">Excluir</button></div>`).join("")||'<div class="empty">Nenhuma meta cadastrada.</div>';
+}
+function list(id,arr){document.getElementById(id).innerHTML=arr.map(x=>`<div class="item"><div><b>${x.type==="entrada"?"🟢":"🔴"} ${x.desc}</b><small>${x.date.split("-").reverse().join("/")} • ${x.category}${x.method?" • "+x.method:""}</small></div><b class="${x.type==="entrada"?"green":"red"}">${x.type==="entrada"?"+":"-"} ${money(x.amount)}</b></div>`).join("")||'<div class="empty">Nenhum lançamento neste mês.</div>'}
+function openModal(type){document.getElementById("type").value=type;document.getElementById("modalTitle").textContent=type==="entrada"?"Nova entrada":"Nova despesa";document.getElementById("date").value=today();document.getElementById("desc").value="";document.getElementById("amount").value="";document.getElementById("method").value="";document.getElementById("note").value="";document.getElementById("category").innerHTML=cats.map(c=>`<option>${c}</option>`).join("");document.getElementById("modal").classList.remove("hidden")}
+document.getElementById("newEntry").onclick=()=>openModal("entrada");document.getElementById("newExpense").onclick=()=>openModal("despesa");document.getElementById("closeModal").onclick=()=>document.getElementById("modal").classList.add("hidden");
+document.getElementById("form").onsubmit=e=>{e.preventDefault();data.entries.push({id:Date.now(),type:document.getElementById("type").value,date:document.getElementById("date").value,desc:document.getElementById("desc").value,category:document.getElementById("category").value,amount:Number(document.getElementById("amount").value),method:document.getElementById("method").value,note:document.getElementById("note").value});document.getElementById("modal").classList.add("hidden");save()};
+document.getElementById("addSaving").onclick=()=>{let v=prompt("Valor poupado:","100");v=Number((v||"").replace(",","."));if(v>0){data.savings.push({date:today(),amount:v});save()}};
+document.getElementById("addGoal").onclick=()=>{let n=prompt("Nome da meta:");if(!n)return;let t=Number((prompt("Valor da meta:","1000")||"").replace(",","."));if(t>0){data.goals.push({name:n,target:t,saved:0});save()}};
+window.removeGoal=i=>{if(confirm("Excluir esta meta?")){data.goals.splice(i,1);save()}};
+document.getElementById("monthFilter").value=new Date().toISOString().slice(0,7);document.getElementById("monthFilter").onchange=render;
+document.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById(b.dataset.page).classList.add("active");document.querySelectorAll("nav button").forEach(n=>n.classList.toggle("selected",n.dataset.page===b.dataset.page));});
+document.getElementById("clearBtn").onclick=()=>{if(confirm("Apagar TODOS os dados deste navegador?")){data={entries:[],savings:[],goals:[]};save()}};
+document.getElementById("budgetBtn").onclick=()=>alert("Orçamento: registre suas entradas e despesas para acompanhar o comprometimento mensal.");
+document.getElementById("debtBtn").onclick=()=>alert("Módulo de dívidas será integrado à próxima versão.");
+document.getElementById("exportBtn").onclick=()=>{let rows=[["tipo","data","descricao","categoria","valor","forma","observacao"],...data.entries.map(x=>[x.type,x.date,x.desc,x.category,x.amount,x.method,x.note])];let csv=rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="financas-pro.csv";a.click()};
+render();
+</script>
+</body>
+</html>
