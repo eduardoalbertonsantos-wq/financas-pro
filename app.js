@@ -2,108 +2,187 @@
   const KEY = "financas-pro-dados-v1";
   const GOAL = 1200;
 
-  const money = n =>
-    (Number(n) || 0).toLocaleString("pt-BR", {
+  const $ = id => document.getElementById(id);
+
+  const money = value =>
+    (Number(value) || 0).toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL"
     });
 
-  const today = () => new Date().toISOString().slice(0, 10);
-  const $ = id => document.getElementById(id);
+  const today = () =>
+    new Date().toISOString().slice(0, 10);
 
-  let state = JSON.parse(localStorage.getItem(KEY) || "{}");
+  // =====================================================
+  // CARREGAR DADOS EXISTENTES
+  // =====================================================
 
-  Object.assign(state, {
-    entries: state.entries || [],
-    savings: state.savings || [],
-    goals: state.goals || [],
-    accounts: state.accounts || [],
-    cards: state.cards || [],
-    debts: state.debts || [],
-    investments: state.investments || [],
-    budgets: state.budgets || []
-  });
+  let state = {};
 
-  const save = () => {
-    localStorage.setItem(KEY, JSON.stringify(state));
-  };
-
-  function currentMonth() {
-    return $("monthFilter")?.value || today().slice(0, 7);
+  try {
+    state = JSON.parse(
+      localStorage.getItem(KEY) || "{}"
+    );
+  } catch (erro) {
+    state = {};
   }
 
-  function monthEntries() {
-    return state.entries.filter(
-      x => String(x.date || "").slice(0, 7) === currentMonth()
+  state.entries = state.entries || [];
+  state.savings = state.savings || [];
+  state.goals = state.goals || [];
+  state.accounts = state.accounts || [];
+  state.cards = state.cards || [];
+  state.debts = state.debts || [];
+  state.investments = state.investments || [];
+  state.budgets = state.budgets || [];
+
+  function save() {
+    localStorage.setItem(
+      KEY,
+      JSON.stringify(state)
     );
   }
 
-  function totals() {
-    const entries = monthEntries();
+  // =====================================================
+  // MÊS ATUAL
+  // =====================================================
+
+  function getMonth() {
+    return (
+      $("monthFilter")?.value ||
+      today().slice(0, 7)
+    );
+  }
+
+  function getMonthEntries() {
+    return state.entries.filter(item =>
+      String(item.date || "")
+        .slice(0, 7) === getMonth()
+    );
+  }
+
+  // =====================================================
+  // TOTAIS
+  // =====================================================
+
+  function getTotals() {
+
+    const entries = getMonthEntries();
 
     const entradas = entries
-      .filter(x => x.type === "entrada")
-      .reduce((total, x) => total + Number(x.amount || 0), 0);
+      .filter(item => item.type === "entrada")
+      .reduce(
+        (total, item) =>
+          total + Number(item.amount || 0),
+        0
+      );
 
     const despesas = entries
-      .filter(x => x.type === "despesa")
-      .reduce((total, x) => total + Number(x.amount || 0), 0);
+      .filter(item => item.type === "despesa")
+      .reduce(
+        (total, item) =>
+          total + Number(item.amount || 0),
+        0
+      );
 
     const poupado = state.savings
-      .filter(
-        x => String(x.date || "").slice(0, 7) === currentMonth()
+      .filter(item =>
+        String(item.date || "")
+          .slice(0, 7) === getMonth()
       )
-      .reduce((total, x) => total + Number(x.amount || 0), 0);
+      .reduce(
+        (total, item) =>
+          total + Number(item.amount || 0),
+        0
+      );
+
+    const saldo =
+      entradas - despesas;
+
+    const comprometido =
+      entradas > 0
+        ? Math.min(
+            100,
+            (despesas / entradas) * 100
+          )
+        : 0;
 
     return {
       entradas,
       despesas,
       poupado,
-      saldo: entradas - despesas,
-      comprometido: entradas
-        ? Math.min(100, (despesas / entradas) * 100)
-        : 0
+      saldo,
+      comprometido
     };
   }
 
-  function escapeHTML(text) {
-    return String(text ?? "").replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    }[char]));
-  }
+  // =====================================================
+  // SEGURANÇA HTML
+  // =====================================================
 
-  function formatDate(date) {
-    if (!date) return "";
+  function escapeHTML(value) {
 
-    const parts = date.split("-");
+    return String(value ?? "")
+      .replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[character]));
 
-    if (parts.length !== 3) return date;
-
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
   }
 
   // =====================================================
-  // NAVEGAÇÃO PRINCIPAL
+  // DATA
+  // =====================================================
+
+  function formatDate(date) {
+
+    if (!date) return "";
+
+    const parts =
+      String(date).split("-");
+
+    if (parts.length !== 3)
+      return date;
+
+    return (
+      parts[2] +
+      "/" +
+      parts[1] +
+      "/" +
+      parts[0]
+    );
+  }
+
+  // =====================================================
+  // NAVEGAÇÃO
   // =====================================================
 
   function abrirPagina(page) {
 
-    document.querySelectorAll(".page").forEach(pagina => {
-      pagina.classList.remove("active");
-    });
+    document
+      .querySelectorAll(".page")
+      .forEach(pagina => {
 
-    const pagina = $(page);
+        pagina.classList.remove("active");
+
+      });
+
+    const pagina =
+      document.getElementById(page);
 
     if (pagina) {
+
       pagina.classList.add("active");
+
     }
 
     document
-      .querySelectorAll("[data-page]")
+      .querySelectorAll(
+        "nav button[data-page]"
+      )
       .forEach(botao => {
 
         botao.classList.toggle(
@@ -112,14 +191,35 @@
         );
 
       });
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
   }
 
-  window.abrirPagina = abrirPagina;
+  window.abrirPagina =
+    abrirPagina;
+
+  // =====================================================
+  // MENU
+  // =====================================================
+
+  document.addEventListener(
+    "click",
+    event => {
+
+      const botao =
+        event.target.closest(
+          "button[data-page]"
+        );
+
+      if (!botao) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      abrirPagina(
+        botao.dataset.page
+      );
+
+    }
+  );
 
   // =====================================================
   // DASHBOARD
@@ -127,54 +227,69 @@
 
   function renderDashboard() {
 
-    const t = totals();
+    const totals =
+      getTotals();
 
-    const porcentagem = Math.min(
-      100,
-      (t.poupado / GOAL) * 100
-    );
+    const progresso =
+      Math.min(
+        100,
+        (totals.poupado / GOAL) * 100
+      );
 
     if ($("saldo"))
-      $("saldo").textContent = money(t.saldo);
+      $("saldo").textContent =
+        money(totals.saldo);
 
     if ($("entradas"))
-      $("entradas").textContent = money(t.entradas);
+      $("entradas").textContent =
+        money(totals.entradas);
 
     if ($("despesas"))
-      $("despesas").textContent = money(t.despesas);
+      $("despesas").textContent =
+        money(totals.despesas);
 
     if ($("poupado"))
-      $("poupado").textContent = money(t.poupado);
+      $("poupado").textContent =
+        money(totals.poupado);
 
     if ($("comprometido"))
       $("comprometido").textContent =
-        `${t.comprometido.toFixed(0)}%`;
+        totals.comprometido.toFixed(0) + "%";
 
     if ($("savingTotal"))
       $("savingTotal").textContent =
-        money(t.poupado);
-
-    if ($("saveText")) {
-      $("saveText").textContent =
-        `Meta de poupança: ${money(GOAL)} • Acumulado no mês: ${money(t.poupado)}`;
-    }
+        money(totals.poupado);
 
     if ($("saveBar"))
       $("saveBar").style.width =
-        `${porcentagem}%`;
+        progresso + "%";
+
+    if ($("goalBar"))
+      $("goalBar").style.width =
+        progresso + "%";
 
     if ($("goalPercent"))
       $("goalPercent").textContent =
-        `${porcentagem.toFixed(0)}% da meta atingida`;
+        progresso.toFixed(0) +
+        "% da meta atingida";
+
+    if ($("saveText"))
+      $("saveText").textContent =
+        "Meta mensal: " +
+        money(GOAL) +
+        " • Poupado: " +
+        money(totals.poupado);
 
     if ($("insight")) {
 
-      if (t.saldo < 0) {
+      if (totals.saldo < 0) {
 
         $("insight").textContent =
           "⚠️ Atenção: suas despesas estão maiores que suas entradas.";
 
-      } else if (t.poupado >= GOAL) {
+      } else if (
+        totals.poupado >= GOAL
+      ) {
 
         $("insight").textContent =
           "🎉 Parabéns! Sua meta de poupança foi atingida.";
@@ -182,9 +297,14 @@
       } else {
 
         $("insight").textContent =
-          `Faltam ${money(GOAL - t.poupado)} para atingir sua meta.`;
+          "💡 Faltam " +
+          money(
+            GOAL - totals.poupado
+          ) +
+          " para atingir sua meta.";
 
       }
+
     }
 
     renderCategories();
@@ -197,27 +317,34 @@
 
   function renderCategories() {
 
-    const container = $("categories");
+    const container =
+      $("categories");
 
     if (!container) return;
 
     const categorias = {};
 
-    monthEntries()
-      .filter(x => x.type === "despesa")
-      .forEach(x => {
+    getMonthEntries()
+      .filter(
+        item =>
+          item.type === "despesa"
+      )
+      .forEach(item => {
 
         const categoria =
-          x.category || "Outros";
+          item.category || "Outros";
 
         categorias[categoria] =
           (categorias[categoria] || 0) +
-          Number(x.amount || 0);
+          Number(item.amount || 0);
 
       });
 
-    const lista = Object.entries(categorias)
-      .sort((a, b) => b[1] - a[1]);
+    const lista =
+      Object.entries(categorias)
+        .sort(
+          (a, b) => b[1] - a[1]
+        );
 
     if (!lista.length) {
 
@@ -229,93 +356,108 @@
       return;
     }
 
-    const maior = lista[0][1] || 1;
+    const maior =
+      lista[0][1] || 1;
 
-    container.innerHTML = lista
-      .map(([categoria, valor]) => {
+    container.innerHTML =
+      lista.map(
+        ([categoria, valor]) => {
 
-        const porcentagem =
-          (valor / maior) * 100;
+          const percentual =
+            (valor / maior) * 100;
 
-        return `
-          <div class="category-row">
+          return `
+            <div class="category-row">
 
-            <div>
-              <span>${escapeHTML(categoria)}</span>
-              <b>${money(valor)}</b>
+              <div>
+                <span>
+                  ${escapeHTML(categoria)}
+                </span>
+
+                <b>
+                  ${money(valor)}
+                </b>
+              </div>
+
+              <div class="category-track">
+                <i
+                  style="width:${percentual}%">
+                </i>
+              </div>
+
             </div>
+          `;
 
-            <div class="category-track">
-              <i style="width:${porcentagem}%"></i>
-            </div>
-
-          </div>
-        `;
-
-      })
-      .join("");
+        }
+      ).join("");
   }
 
   // =====================================================
   // LANÇAMENTOS
   // =====================================================
 
-  function lancamentoHTML(item) {
-
-    const sinal =
-      item.type === "entrada"
-        ? "+"
-        : "-";
-
-    return `
-      <div class="item">
-
-        <div>
-          <strong>
-            ${escapeHTML(item.desc)}
-          </strong>
-
-          <small>
-            ${formatDate(item.date)}
-            •
-            ${escapeHTML(item.category || "Outros")}
-            ${item.method
-              ? " • " + escapeHTML(item.method)
-              : ""}
-          </small>
-        </div>
-
-        <div class="${item.type}">
-
-          ${sinal} ${money(item.amount)}
-
-          <button
-            class="iconbtn"
-            data-del="${item.id}">
-            🗑️
-          </button>
-
-        </div>
-
-      </div>
-    `;
-  }
-
   function renderRecent() {
 
-    const lista = [...monthEntries()]
-      .sort((a, b) =>
-        String(b.date).localeCompare(
-          String(a.date)
-        )
-      );
+    const lista =
+      [...getMonthEntries()]
+        .sort(
+          (a, b) =>
+            String(b.date)
+              .localeCompare(
+                String(a.date)
+              )
+        );
 
     if ($("recent")) {
 
       $("recent").innerHTML =
         lista
-          .slice(0, 6)
-          .map(lancamentoHTML)
+          .slice(0, 8)
+          .map(item => {
+
+            const sinal =
+              item.type === "entrada"
+                ? "+"
+                : "-";
+
+            return `
+              <div class="item">
+
+                <div>
+                  <strong>
+                    ${escapeHTML(
+                      item.desc
+                    )}
+                  </strong>
+
+                  <small>
+                    ${formatDate(
+                      item.date
+                    )}
+                    •
+                    ${escapeHTML(
+                      item.category ||
+                      "Outros"
+                    )}
+                  </small>
+                </div>
+
+                <div
+                  class="${item.type}">
+                  ${sinal}
+                  ${money(item.amount)}
+
+                  <button
+                    class="iconbtn"
+                    data-del="${item.id}">
+                    🗑️
+                  </button>
+                </div>
+
+              </div>
+            `;
+
+          })
           .join("") ||
 
         `<div class="empty">
@@ -327,7 +469,51 @@
 
       $("allList").innerHTML =
         lista
-          .map(lancamentoHTML)
+          .map(item => {
+
+            const sinal =
+              item.type === "entrada"
+                ? "+"
+                : "-";
+
+            return `
+              <div class="item">
+
+                <div>
+                  <strong>
+                    ${escapeHTML(
+                      item.desc
+                    )}
+                  </strong>
+
+                  <small>
+                    ${formatDate(
+                      item.date
+                    )}
+                    •
+                    ${escapeHTML(
+                      item.category ||
+                      "Outros"
+                    )}
+                  </small>
+                </div>
+
+                <div
+                  class="${item.type}">
+                  ${sinal}
+                  ${money(item.amount)}
+
+                  <button
+                    class="iconbtn"
+                    data-del="${item.id}">
+                    🗑️
+                  </button>
+                </div>
+
+              </div>
+            `;
+
+          })
           .join("") ||
 
         `<div class="empty">
@@ -337,12 +523,53 @@
   }
 
   // =====================================================
+  // POUPANÇA
+  // =====================================================
+
+  function renderSavings() {
+
+    const total =
+      state.savings
+        .filter(item =>
+          String(item.date || "")
+            .slice(0, 7) ===
+          getMonth()
+        )
+        .reduce(
+          (sum, item) =>
+            sum +
+            Number(item.amount || 0),
+          0
+        );
+
+    const percentual =
+      Math.min(
+        100,
+        (total / GOAL) * 100
+      );
+
+    if ($("savingTotal"))
+      $("savingTotal").textContent =
+        money(total);
+
+    if ($("goalPercent"))
+      $("goalPercent").textContent =
+        percentual.toFixed(0) +
+        "% da meta atingida";
+
+    if ($("goalBar"))
+      $("goalBar").style.width =
+        percentual + "%";
+  }
+
+  // =====================================================
   // METAS
   // =====================================================
 
   function renderGoals() {
 
-    const container = $("goals");
+    const container =
+      $("goals");
 
     if (!container) return;
 
@@ -359,16 +586,16 @@
     container.innerHTML =
       state.goals.map(meta => {
 
-        const alvo =
+        const objetivo =
           Number(meta.target) || 1;
 
         const atual =
           Number(meta.current) || 0;
 
-        const porcentagem =
+        const percentual =
           Math.min(
             100,
-            (atual / alvo) * 100
+            (atual / objetivo) * 100
           );
 
         return `
@@ -377,15 +604,19 @@
             <div class="panel-head">
 
               <div>
+
                 <strong>
-                  ${escapeHTML(meta.name)}
+                  ${escapeHTML(
+                    meta.name
+                  )}
                 </strong>
 
                 <small>
                   ${money(atual)}
                   de
-                  ${money(alvo)}
+                  ${money(objetivo)}
                 </small>
+
               </div>
 
               <button
@@ -398,12 +629,13 @@
 
             <div class="bar">
               <i
-                style="width:${porcentagem}%">
+                style="width:${percentual}%">
               </i>
             </div>
 
             <small>
-              ${porcentagem.toFixed(0)}% concluído
+              ${percentual.toFixed(0)}%
+              concluído
             </small>
 
           </div>
@@ -418,7 +650,8 @@
 
   function renderAccounts() {
 
-    const container = $("accounts");
+    const container =
+      $("accounts");
 
     if (!container) return;
 
@@ -433,21 +666,29 @@
     }
 
     container.innerHTML =
-      state.accounts.map(conta => {
+      state.accounts.map(
+        conta => `
 
-        return `
           <div class="entity">
 
             <div>
+
               <strong>
-                ${escapeHTML(conta.name)}
+                ${escapeHTML(
+                  conta.name
+                )}
               </strong>
 
               <small>
-                ${escapeHTML(conta.bank || "")}
+                ${escapeHTML(
+                  conta.bank || ""
+                )}
                 •
-                ${escapeHTML(conta.type || "")}
+                ${escapeHTML(
+                  conta.type || ""
+                )}
               </small>
+
             </div>
 
             <strong>
@@ -462,9 +703,9 @@
             </button>
 
           </div>
-        `;
 
-      }).join("");
+        `
+      ).join("");
   }
 
   // =====================================================
@@ -473,7 +714,8 @@
 
   function renderCards() {
 
-    const container = $("cardsList");
+    const container =
+      $("cardsList");
 
     if (!container) return;
 
@@ -488,23 +730,31 @@
     }
 
     container.innerHTML =
-      state.cards.map(cartao => {
+      state.cards.map(
+        cartao => `
 
-        return `
           <div class="entity">
 
             <div>
 
               <strong>
-                ${escapeHTML(cartao.name)}
+                ${escapeHTML(
+                  cartao.name
+                )}
               </strong>
 
               <small>
-                ${escapeHTML(cartao.bank || "")}
+                ${escapeHTML(
+                  cartao.bank || ""
+                )}
                 • Limite:
-                ${money(cartao.amount)}
+                ${money(
+                  cartao.amount
+                )}
                 • Vencimento:
-                ${escapeHTML(cartao.due || "")}
+                ${escapeHTML(
+                  cartao.due || ""
+                )}
               </small>
 
             </div>
@@ -517,9 +767,9 @@
             </button>
 
           </div>
-        `;
 
-      }).join("");
+        `
+      ).join("");
   }
 
   // =====================================================
@@ -528,7 +778,8 @@
 
   function renderDebts() {
 
-    const container = $("debtsList");
+    const container =
+      $("debtsList");
 
     if (!container) return;
 
@@ -543,28 +794,37 @@
     }
 
     container.innerHTML =
-      state.debts.map(divida => {
+      state.debts.map(
+        divida => `
 
-        return `
           <div class="entity">
 
             <div>
 
               <strong>
-                ${escapeHTML(divida.name)}
+                ${escapeHTML(
+                  divida.name
+                )}
               </strong>
 
               <small>
                 Vencimento:
-                ${escapeHTML(divida.due || "")}
+                ${escapeHTML(
+                  divida.due || ""
+                )}
                 • Parcelas:
-                ${escapeHTML(divida.installments || "")}
+                ${escapeHTML(
+                  divida.installments ||
+                  ""
+                )}
               </small>
 
             </div>
 
             <strong>
-              ${money(divida.amount)}
+              ${money(
+                divida.amount
+              )}
             </strong>
 
             <button
@@ -575,9 +835,9 @@
             </button>
 
           </div>
-        `;
 
-      }).join("");
+        `
+      ).join("");
   }
 
   // =====================================================
@@ -602,42 +862,50 @@
     }
 
     container.innerHTML =
-      state.investments.map(inv => {
+      state.investments.map(
+        investimento => `
 
-        return `
           <div class="entity">
 
             <div>
 
               <strong>
-                ${escapeHTML(inv.name)}
+                ${escapeHTML(
+                  investimento.name
+                )}
               </strong>
 
               <small>
-                ${escapeHTML(inv.type || "")}
+                ${escapeHTML(
+                  investimento.type ||
+                  ""
+                )}
                 •
                 ${escapeHTML(
-                  inv.institution || ""
+                  investimento.institution ||
+                  ""
                 )}
               </small>
 
             </div>
 
             <strong>
-              ${money(inv.amount)}
+              ${money(
+                investimento.amount
+              )}
             </strong>
 
             <button
               class="iconbtn"
               data-entitydel="investments"
-              data-id="${inv.id}">
+              data-id="${investimento.id}">
               🗑️
             </button>
 
           </div>
-        `;
 
-      }).join("");
+        `
+      ).join("");
   }
 
   // =====================================================
@@ -646,13 +914,16 @@
 
   function renderBudgets() {
 
-    const container = $("budgetList");
+    const container =
+      $("budgetList");
 
     if (!container) return;
 
     const lista =
       state.budgets.filter(
-        x => x.month === currentMonth()
+        item =>
+          item.month ===
+          getMonth()
       );
 
     if (!lista.length) {
@@ -666,78 +937,91 @@
     }
 
     container.innerHTML =
-      lista.map(orcamento => {
+      lista.map(
+        orcamento => {
 
-        const gasto =
-          monthEntries()
-            .filter(
-              x =>
-                x.type === "despesa" &&
-                x.category === orcamento.category
-            )
-            .reduce(
-              (total, x) =>
-                total + Number(x.amount || 0),
-              0
-            );
-
-        const porcentagem =
-          orcamento.amount
-            ? Math.min(
-                100,
-                (gasto / orcamento.amount) * 100
+          const gasto =
+            getMonthEntries()
+              .filter(
+                item =>
+                  item.type ===
+                    "despesa" &&
+                  item.category ===
+                    orcamento.category
               )
-            : 0;
+              .reduce(
+                (total, item) =>
+                  total +
+                  Number(
+                    item.amount || 0
+                  ),
+                0
+              );
 
-        return `
-          <div class="entity">
+          const percentual =
+            orcamento.amount
+              ? Math.min(
+                  100,
+                  (gasto /
+                    orcamento.amount) *
+                    100
+                )
+              : 0;
 
-            <div>
+          return `
+            <div class="entity">
 
-              <strong>
-                ${escapeHTML(
-                  orcamento.category
-                )}
-              </strong>
+              <div>
 
-              <small>
-                Orçamento:
-                ${money(orcamento.amount)}
-                • Gasto:
-                ${money(gasto)}
-              </small>
+                <strong>
+                  ${escapeHTML(
+                    orcamento.category
+                  )}
+                </strong>
 
-              <div class="bar mini">
-                <i
-                  style="width:${porcentagem}%">
-                </i>
+                <small>
+                  Orçamento:
+                  ${money(
+                    orcamento.amount
+                  )}
+                  • Gasto:
+                  ${money(gasto)}
+                </small>
+
+                <div class="bar mini">
+                  <i
+                    style="width:${percentual}%">
+                  </i>
+                </div>
+
               </div>
 
+              <strong>
+                ${percentual.toFixed(0)}%
+              </strong>
+
             </div>
+          `;
 
-            <strong>
-              ${porcentagem.toFixed(0)}%
-            </strong>
-
-          </div>
-        `;
-
-      }).join("");
+        }
+      ).join("");
   }
 
   // =====================================================
-  // RENDER GERAL
+  // RENDER
   // =====================================================
 
   function render() {
 
     renderDashboard();
+    renderSavings();
     renderGoals();
     renderAccounts();
     renderCards();
     renderDebts();
     renderInvestments();
     renderBudgets();
+
   }
 
   // =====================================================
@@ -746,12 +1030,17 @@
 
   function openModal(tipo, subtipo = "") {
 
-    if (!$("modal")) return;
+    if (!$("modal"))
+      return;
 
-    $("formKind").value = tipo;
-    $("type").value = subtipo;
+    $("formKind").value =
+      tipo;
 
-    let titulo = "Novo registro";
+    $("type").value =
+      subtipo;
+
+    let titulo =
+      "Novo registro";
 
     if (tipo === "entry") {
 
@@ -759,6 +1048,7 @@
         subtipo === "entrada"
           ? "Nova entrada"
           : "Nova despesa";
+
     }
 
     if (tipo === "account")
@@ -779,27 +1069,21 @@
     if (tipo === "budget")
       titulo = "Novo orçamento";
 
-    if ($("modalTitle"))
-      $("modalTitle").textContent = titulo;
+    $("modalTitle").textContent =
+      titulo;
 
     let html = "";
-
-    // -----------------------------------------------
-    // LANÇAMENTO
-    // -----------------------------------------------
 
     if (tipo === "entry") {
 
       const categorias =
         subtipo === "entrada"
-
           ? [
               "Salário",
               "Renda extra",
               "Investimentos",
               "Outros"
             ]
-
           : [
               "Moradia",
               "Alimentação",
@@ -817,7 +1101,6 @@
 
         <label>
           Data
-
           <input
             id="f_date"
             type="date"
@@ -827,7 +1110,6 @@
 
         <label>
           Descrição
-
           <input
             id="f_name"
             placeholder="Ex.: Salário"
@@ -839,8 +1121,11 @@
 
           <select id="f_category">
 
-            ${categorias.map(c =>
-              `<option>${c}</option>`
+            ${categorias.map(
+              categoria =>
+                `<option>
+                  ${categoria}
+                </option>`
             ).join("")}
 
           </select>
@@ -870,16 +1155,11 @@
           Observação
 
           <textarea
-            id="f_note">
-          </textarea>
+            id="f_note"></textarea>
         </label>
 
       `;
     }
-
-    // -----------------------------------------------
-    // CONTA
-    // -----------------------------------------------
 
     if (tipo === "account") {
 
@@ -897,7 +1177,8 @@
         <label>
           Banco
 
-          <input id="f_bank">
+          <input
+            id="f_bank">
         </label>
 
         <label>
@@ -921,10 +1202,6 @@
       `;
     }
 
-    // -----------------------------------------------
-    // CARTÃO
-    // -----------------------------------------------
-
     if (tipo === "card") {
 
       html = `
@@ -941,7 +1218,8 @@
         <label>
           Banco
 
-          <input id="f_bank">
+          <input
+            id="f_bank">
         </label>
 
         <label>
@@ -964,10 +1242,6 @@
 
       `;
     }
-
-    // -----------------------------------------------
-    // DÍVIDA
-    // -----------------------------------------------
 
     if (tipo === "debt") {
 
@@ -995,7 +1269,8 @@
         <label>
           Vencimento
 
-          <input id="f_due">
+          <input
+            id="f_due">
         </label>
 
         <label>
@@ -1009,10 +1284,6 @@
 
       `;
     }
-
-    // -----------------------------------------------
-    // INVESTIMENTO
-    // -----------------------------------------------
 
     if (tipo === "investment") {
 
@@ -1030,13 +1301,15 @@
         <label>
           Tipo
 
-          <input id="f_type">
+          <input
+            id="f_type">
         </label>
 
         <label>
           Instituição
 
-          <input id="f_institution">
+          <input
+            id="f_institution">
         </label>
 
         <label>
@@ -1051,10 +1324,6 @@
 
       `;
     }
-
-    // -----------------------------------------------
-    // META
-    // -----------------------------------------------
 
     if (tipo === "goal") {
 
@@ -1092,10 +1361,6 @@
       `;
     }
 
-    // -----------------------------------------------
-    // ORÇAMENTO
-    // -----------------------------------------------
-
     if (tipo === "budget") {
 
       const categorias = [
@@ -1118,8 +1383,11 @@
 
           <select id="f_category">
 
-            ${categorias.map(c =>
-              `<option>${c}</option>`
+            ${categorias.map(
+              categoria =>
+                `<option>
+                  ${categoria}
+                </option>`
             ).join("")}
 
           </select>
@@ -1139,128 +1407,137 @@
       `;
     }
 
-    if ($("dynamicFields"))
-      $("dynamicFields").innerHTML = html;
+    $("dynamicFields").innerHTML =
+      html;
 
-    $("modal").classList.remove("hidden");
+    $("modal").classList.remove(
+      "hidden"
+    );
   }
 
   function closeModal() {
 
     if ($("modal"))
-      $("modal").classList.add("hidden");
+      $("modal").classList.add(
+        "hidden"
+      );
+
   }
 
   // =====================================================
-  // BOTÕES DO MENU
-  // =====================================================
-
-  document.addEventListener("click", event => {
-
-    const botao =
-      event.target.closest("[data-page]");
-
-    if (!botao) return;
-
-    event.preventDefault();
-
-    abrirPagina(botao.dataset.page);
-  });
-
-  // =====================================================
-  // NOVA ENTRADA
+  // BOTÕES
   // =====================================================
 
   $("newEntry")?.addEventListener(
     "click",
-    () => openModal(
-      "entry",
-      "entrada"
-    )
+    () =>
+      openModal(
+        "entry",
+        "entrada"
+      )
   );
-
-  // =====================================================
-  // NOVA DESPESA
-  // =====================================================
 
   $("newExpense")?.addEventListener(
     "click",
-    () => openModal(
-      "entry",
-      "despesa"
-    )
+    () =>
+      openModal(
+        "entry",
+        "despesa"
+      )
   );
-
-  // =====================================================
-  // CONTAS
-  // =====================================================
 
   $("addAccount")?.addEventListener(
     "click",
-    () => openModal("account")
+    () =>
+      openModal("account")
   );
-
-  // =====================================================
-  // CARTÕES
-  // =====================================================
 
   $("addCard")?.addEventListener(
     "click",
-    () => openModal("card")
+    () =>
+      openModal("card")
   );
-
-  // =====================================================
-  // DÍVIDAS
-  // =====================================================
 
   $("addDebt")?.addEventListener(
     "click",
-    () => openModal("debt")
+    () =>
+      openModal("debt")
   );
-
-  // =====================================================
-  // INVESTIMENTOS
-  // =====================================================
 
   $("addInvestment")?.addEventListener(
     "click",
-    () => openModal("investment")
+    () =>
+      openModal("investment")
   );
-
-  // =====================================================
-  // METAS
-  // =====================================================
 
   $("addGoal")?.addEventListener(
     "click",
-    () => openModal("goal")
+    () =>
+      openModal("goal")
   );
-
-  // =====================================================
-  // ORÇAMENTO
-  // =====================================================
 
   $("setBudget")?.addEventListener(
     "click",
-    () => openModal("budget")
+    () =>
+      openModal("budget")
   );
-
-  // =====================================================
-  // FECHAR MODAL
-  // =====================================================
 
   $("closeModal")?.addEventListener(
     "click",
     closeModal
   );
 
-  // =====================================================
-  // MÊS
-  // =====================================================
-
   $("monthFilter")?.addEventListener(
     "change",
     render
+  );
+
+  // =====================================================
+  // POUPANÇA
+  // =====================================================
+
+  $("addSaving")?.addEventListener(
+    "click",
+    () => {
+
+      const resposta =
+        prompt(
+          "Quanto você poupou?",
+          "100"
+        );
+
+      if (resposta === null)
+        return;
+
+      const valor =
+        Number(
+          resposta.replace(
+            ",",
+            "."
+          )
+        );
+
+      if (
+        !valor ||
+        valor <= 0
+      )
+        return;
+
+      state.savings.push({
+
+        id: Date.now(),
+
+        date: today(),
+
+        amount: valor
+
+      });
+
+      save();
+
+      render();
+
+    }
   );
 
   // =====================================================
@@ -1276,19 +1553,18 @@
       const tipo =
         $("formKind").value;
 
-      const id = Date.now();
+      const id =
+        Date.now();
 
       const nome =
-        $("f_name")?.value?.trim() || "";
+        $("f_name")?.value?.trim() ||
+        "";
 
       const valor =
         Number(
-          $("f_amount")?.value || 0
+          $("f_amount")?.value ||
+          0
         );
-
-      // ------------------------------
-      // LANÇAMENTO
-      // ------------------------------
 
       if (tipo === "entry") {
 
@@ -1312,19 +1588,20 @@
             valor,
 
           method:
-            $("f_method")?.value?.trim() || "",
+            $("f_method")?.value?.trim() ||
+            "",
 
           note:
-            $("f_note")?.value?.trim() || ""
+            $("f_note")?.value?.trim() ||
+            ""
 
         });
+
       }
 
-      // ------------------------------
-      // CONTA
-      // ------------------------------
-
-      else if (tipo === "account") {
+      else if (
+        tipo === "account"
+      ) {
 
         state.accounts.push({
 
@@ -1343,13 +1620,12 @@
             valor
 
         });
+
       }
 
-      // ------------------------------
-      // CARTÃO
-      // ------------------------------
-
-      else if (tipo === "card") {
+      else if (
+        tipo === "card"
+      ) {
 
         state.cards.push({
 
@@ -1368,13 +1644,12 @@
             $("f_due").value.trim()
 
         });
+
       }
 
-      // ------------------------------
-      // DÍVIDA
-      // ------------------------------
-
-      else if (tipo === "debt") {
+      else if (
+        tipo === "debt"
+      ) {
 
         state.debts.push({
 
@@ -1393,13 +1668,12 @@
             $("f_installments").value
 
         });
+
       }
 
-      // ------------------------------
-      // INVESTIMENTO
-      // ------------------------------
-
-      else if (tipo === "investment") {
+      else if (
+        tipo === "investment"
+      ) {
 
         state.investments.push({
 
@@ -1412,19 +1686,20 @@
             $("f_type").value.trim(),
 
           institution:
-            $("f_institution").value.trim(),
+            $("f_institution")
+              .value
+              .trim(),
 
           amount:
             valor
 
         });
+
       }
 
-      // ------------------------------
-      // META
-      // ------------------------------
-
-      else if (tipo === "goal") {
+      else if (
+        tipo === "goal"
+      ) {
 
         state.goals.push({
 
@@ -1438,24 +1713,24 @@
 
           current:
             Number(
-              $("f_current").value || 0
+              $("f_current").value ||
+              0
             )
 
         });
+
       }
 
-      // ------------------------------
-      // ORÇAMENTO
-      // ------------------------------
-
-      else if (tipo === "budget") {
+      else if (
+        tipo === "budget"
+      ) {
 
         state.budgets.push({
 
           id,
 
           month:
-            currentMonth(),
+            getMonth(),
 
           category:
             $("f_category").value,
@@ -1464,6 +1739,7 @@
             valor
 
         });
+
       }
 
       save();
@@ -1471,97 +1747,31 @@
       closeModal();
 
       render();
+
     }
   );
 
   // =====================================================
-  // POUPANÇA
-  // =====================================================
-
-  $("addSaving")?.addEventListener(
-    "click",
-    () => {
-
-      const resposta =
-        prompt(
-          "Quanto você poupou?",
-          "100"
-        );
-
-      if (resposta === null)
-        return;
-
-      const valor =
-        Number(
-          resposta.replace(",", ".")
-        );
-
-      if (!valor || valor <= 0)
-        return;
-
-      state.savings.push({
-
-        id:
-          Date.now(),
-
-        date:
-          today(),
-
-        amount:
-          valor
-
-      });
-
-      save();
-
-      render();
-    }
-  );
-
-  // =====================================================
-  // EXCLUSÕES
+  // EXCLUIR
   // =====================================================
 
   document.addEventListener(
     "click",
     event => {
 
-      // lançamento
-      const apagar =
+      const lancamento =
         event.target.closest(
           "[data-del]"
         );
 
-      if (apagar) {
+      if (lancamento) {
 
         state.entries =
           state.entries.filter(
-            x =>
-              String(x.id) !==
-              String(apagar.dataset.del)
-          );
-
-        save();
-
-        render();
-
-        return;
-      }
-
-      // meta
-      const apagarMeta =
-        event.target.closest(
-          "[data-goaldel]"
-        );
-
-      if (apagarMeta) {
-
-        state.goals =
-          state.goals.filter(
-            x =>
-              String(x.id) !==
+            item =>
+              String(item.id) !==
               String(
-                apagarMeta.dataset.goaldel
+                lancamento.dataset.del
               )
           );
 
@@ -1572,32 +1782,56 @@
         return;
       }
 
-      // conta/cartão/dívida/investimento
-      const apagarItem =
+      const meta =
+        event.target.closest(
+          "[data-goaldel]"
+        );
+
+      if (meta) {
+
+        state.goals =
+          state.goals.filter(
+            item =>
+              String(item.id) !==
+              String(
+                meta.dataset.goaldel
+              )
+          );
+
+        save();
+
+        render();
+
+        return;
+      }
+
+      const entidade =
         event.target.closest(
           "[data-entitydel]"
         );
 
-      if (apagarItem) {
+      if (entidade) {
 
         const grupo =
-          apagarItem.dataset.entitydel;
+          entidade.dataset.entitydel;
 
         if (state[grupo]) {
 
           state[grupo] =
             state[grupo].filter(
-              x =>
-                String(x.id) !==
+              item =>
+                String(item.id) !==
                 String(
-                  apagarItem.dataset.id
+                  entidade.dataset.id
                 )
             );
 
           save();
 
           render();
+
         }
+
       }
 
     }
@@ -1623,39 +1857,37 @@
           "Observação"
         ],
 
-        ...state.entries.map(x => [
+        ...state.entries.map(
+          item => [
 
-          x.type,
+            item.type,
+            item.date,
+            item.desc,
+            item.category,
+            item.amount,
+            item.method,
+            item.note
 
-          x.date,
-
-          x.desc,
-
-          x.category,
-
-          x.amount,
-
-          x.method,
-
-          x.note
-
-        ])
+          ]
+        )
 
       ];
 
       const csv =
         linhas
-          .map(linha =>
-            linha
-              .map(valor =>
-                `"${String(
-                  valor ?? ""
-                ).replaceAll(
-                  '"',
-                  '""'
-                )}"`
-              )
-              .join(";")
+          .map(
+            linha =>
+              linha
+                .map(
+                  valor =>
+                    `"${String(
+                      valor ?? ""
+                    ).replaceAll(
+                      '"',
+                      '""'
+                    )}"`
+                )
+                .join(";")
           )
           .join("\n");
 
@@ -1669,27 +1901,25 @@
         );
 
       const link =
-        document.createElement("a");
+        document.createElement(
+          "a"
+        );
 
       link.href =
-        URL.createObjectURL(blob);
+        URL.createObjectURL(
+          blob
+        );
 
       link.download =
         "financas-pro.csv";
 
-      document.body.appendChild(link);
+      document.body.appendChild(
+        link
+      );
 
       link.click();
 
       link.remove();
-
-      setTimeout(() => {
-
-        URL.revokeObjectURL(
-          link.href
-        );
-
-      }, 1000);
     }
   );
 
@@ -1701,30 +1931,22 @@
     "click",
     () => {
 
-      const confirmar =
-        confirm(
-          "Tem certeza que deseja apagar todos os dados financeiros?"
-        );
-
-      if (!confirmar)
+      if (
+        !confirm(
+          "Tem certeza que deseja apagar todos os dados?"
+        )
+      )
         return;
 
       state = {
 
         entries: [],
-
         savings: [],
-
         goals: [],
-
         accounts: [],
-
         cards: [],
-
         debts: [],
-
         investments: [],
-
         budgets: []
 
       };
@@ -1732,11 +1954,12 @@
       save();
 
       render();
+
     }
   );
 
   // =====================================================
-  // INICIALIZAÇÃO
+  // INICIAR
   // =====================================================
 
   if ($("monthFilter")) {
@@ -1748,7 +1971,6 @@
 
   render();
 
-  // Abre a página inicial
   abrirPagina("dashboard");
 
 })();
